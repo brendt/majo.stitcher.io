@@ -25,7 +25,6 @@ startDeployment
 cloneRepository
 runComposer
 runNpm
-generateAssets
 updateSymlinks
 optimizeInstallation
 {{--backupDatabase--}}
@@ -85,19 +84,8 @@ composer install --prefer-dist --no-scripts --no-dev -o;
 @task('runNpm', ['on' => 'remote'])
 {{ logMessage("📦  Running NPM...") }}
 cd {{ $newReleaseDir }};
+npm install
 npm run build
-@endtask
-
-@task('generateAssets', ['on' => 'remote'])
-{{ logMessage("🌅  Generating assets...") }}
-cd {{ $newReleaseDir }};
-yarn run production
-@endtask
-
-@task('generateAssetsInCurrentDir', ['on' => 'remote'])
-{{ logMessage("🌅  Generating assets...") }}
-cd {{ $currentDir }};
-yarn run production
 @endtask
 
 @task('updateSymlinks', ['on' => 'remote'])
