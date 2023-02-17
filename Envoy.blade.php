@@ -24,7 +24,7 @@ $css = isset($css);
 startDeployment
 cloneRepository
 runComposer
-runYarn
+runNpm
 generateAssets
 updateSymlinks
 optimizeInstallation
@@ -82,18 +82,10 @@ cd {{ $newReleaseDir }};
 composer install --prefer-dist --no-scripts --no-dev -o;
 @endtask
 
-@task('runYarn', ['on' => 'remote'])
-{{ logMessage("📦  Running Yarn...") }}
+@task('runNpm', ['on' => 'remote'])
+{{ logMessage("📦  Running NPM...") }}
 cd {{ $newReleaseDir }};
-yarn config set ignore-engines true
-yarn --frozen-lockfile
-@endtask
-
-@task('runYarnInCurrentDir', ['on' => 'remote'])
-{{ logMessage("📦  Running Yarn...") }}
-cd {{ $currentDir }};
-yarn config set ignore-engines true
-yarn --frozen-lockfile
+npm run build
 @endtask
 
 @task('generateAssets', ['on' => 'remote'])
