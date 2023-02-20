@@ -8,7 +8,9 @@ class ShortGame extends Component
 {
     public function mount()
     {
-        ShortBoard::init();
+        $board = ShortBoard::init();
+
+        dump($board);
     }
 
     public function handleClick($x, $y)
@@ -56,6 +58,13 @@ class ShortGame extends Component
     {
         ShortBoard::resolve()
             ->handleEmptyRows()
+            ->persist();
+    }
+
+    public function shuffleBoard()
+    {
+        ShortBoard::resolve()
+            ->shuffle()
             ->persist();
     }
 

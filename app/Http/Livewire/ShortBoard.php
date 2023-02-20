@@ -100,7 +100,7 @@ final class ShortBoard implements Board
 
     public function handleEmptyRows(): self
     {
-        if ($this->score > 800) {
+        if ($this->score > 600) {
             return $this;
         }
 
@@ -151,11 +151,17 @@ final class ShortBoard implements Board
 
     public function createNewLine(): array
     {
+        $pairs = match (true) {
+            $this->score > 400 => 4,
+            $this->score > 100 => 2,
+            default => 1,
+        };
+
         $maxValue = match (true) {
-            $this->score > 700 => 12,
-            $this->score > 600 => 10,
-            $this->score > 500 => 9,
-            $this->score > 300 => 8,
+            $this->score > 600 => 12,
+            $this->score > 500 => 10,
+            $this->score > 300 => 9,
+            $this->score > 200 => 8,
             $this->score > 100 => 7,
             default => 5,
         };
@@ -205,22 +211,46 @@ final class ShortBoard implements Board
             ],
         };
 
-        $mask = collect(explode(' ', $masks[array_rand($masks)]));
+        $maskAsString = $masks[array_rand($masks)];
+
+        $mask = collect(explode(' ', $maskAsString));
+
+        $newTileCount = $mask->sum();
+
+        $pairCount = $newTileCount / $pairs;
+
+        $values = [];
+
+        foreach (range(1, $newTileCount) as $i) {
+            $value = random_int(1, $maxValue);
+
+            foreach (range(1, $pairCount) as $j) {
+                $values[] = $value;
+            }
+        }
+
+        shuffle($values);
 
         return $mask
-            ->map(function (int $count, int $x) use ($maxValue) {
+            ->map(function (int $count, int $x) use (&$values, $maxValue) {
                 if ($count === 0) {
                     return [];
                 }
 
                 return collect(range(0, $count - 1))
-                    ->map(fn (int $z) => new Tile(
-                        x: $x,
-                        y: 1,
-                        z: $z,
-                        value: random_int(1, $maxValue),
-                        board: $this
-                    ))
+                    ->map(function (int $z) use ($x, &$values) {
+                        $tile = new Tile(
+                            x: $x,
+                            y: 1,
+                            z: $z,
+                            value: current($values),
+                            board: $this
+                        );
+
+                        next($values);
+
+                        return $tile;
+                    })
                     ->toArray();
             })
             ->toArray();
@@ -298,6 +328,30 @@ final class ShortBoard implements Board
     {
         return iterator_count($this->loop()) === 0;
     }
+
+    public function shuffle(): self
+    {
+        $tiles = iterator_to_array($this->loop());
+
+        shuffle($tiles);
+
+        foreach ($this->tiles as $y => $row) {
+            foreach ($row as $x => $tiles) {
+                foreach ($tiles as $z => $tile) {
+                    /** @var \App\Http\Livewire\Tile $newTile */
+                    $newTile = current($tiles);
+
+                    $this->tiles[$y][$x][$z] = $newTile->move($x, $y, $z);
+
+                    $newTile->markUnselected();
+
+                    next($tiles);
+                }
+            }
+        }
+
+        return $this;
+}
 
     private function loop(): Generator
     {

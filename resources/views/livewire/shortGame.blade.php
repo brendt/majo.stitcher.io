@@ -71,9 +71,9 @@
         }
     </style>
 
-    <div class="text-center">
-        <p>Play until the board is empty!</p>
-    </div>
+{{--    <div class="text-center">--}}
+{{--        <p>Play until the board is empty!</p>--}}
+{{--    </div>--}}
 
     <div class="flex justify-center items-center h-screen pb-16">
         <div class="">
@@ -116,6 +116,7 @@
                 <span>
                     Score: {{ $board->score }}
                 </span>
+                <button class="underline hover:no-underline" wire:click="shuffleBoard">Shuffle</button>
                 <button class="underline hover:no-underline" wire:click="newBoard">New</button>
             </div>
         </div>
