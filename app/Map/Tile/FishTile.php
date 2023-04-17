@@ -2,7 +2,7 @@
 
 namespace App\Map\Tile;
 
-final class TreeTile extends BaseTile implements WithBorder
+final class FishTile extends BaseTile implements WithBorder
 {
     public function __construct(
         public readonly float $noise,
@@ -18,11 +18,11 @@ final class TreeTile extends BaseTile implements WithBorder
 
         $hex = hex($value);
 
-        return "#00{$hex}00";
+        return "#0000{$hex}";
     }
 
     public function getBorderColor(): string
     {
-        return '#B66F27DD';
+        return '#FFFFFF55';
     }
 }

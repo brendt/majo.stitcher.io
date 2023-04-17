@@ -32,7 +32,7 @@ final readonly class VegetationLayer implements Layer
         if ($tile->getBiome()::class === DesertBiome::class) {
             $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
 
-            if ($noise < 0 || $noise > 0.05) {
+            if ($noise < 0.3 || $noise > 0.5) {
                 return $tile;
             }
 

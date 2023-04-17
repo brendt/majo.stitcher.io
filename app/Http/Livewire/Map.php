@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
 use App\Map\Layer\ElevationLayer;
+use App\Map\Layer\FishLayer;
 use App\Map\Layer\TemperatureLayer;
 use App\Map\Layer\LandLayer;
 use App\Map\Layer\VegetationLayer;
@@ -34,6 +35,7 @@ class Map extends Component
             ->add(new BiomeLayer())
             ->add(new LandLayer($generator))
             ->add(new VegetationLayer($generator))
+            ->add(new FishLayer($generator))
             ->generate();
 
         return view('livewire.map', [
