@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69a8418fa635a275a458f48cdf10a0bd",
+    "content-hash": "cc193f4f720cf943492c4fb812923a6b",
     "packages": [
         {
             "name": "brick/math",
@@ -3011,6 +3011,63 @@
                 }
             ],
             "time": "2023-01-12T18:13:24+00:00"
+        },
+        {
+            "name": "spatie/php-cloneable",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/php-cloneable.git",
+                "reference": "081fa1bc2ec12780aaaf7c7a2a62d7bfb2f018ff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/php-cloneable/zipball/081fa1bc2ec12780aaaf7c7a2a62d7bfb2f018ff",
+                "reference": "081fa1bc2ec12780aaaf7c7a2a62d7bfb2f018ff",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.17",
+                "phpunit/phpunit": "^9.5",
+                "vimeo/psalm": "^4.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Cloneable\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brent Roose",
+                    "email": "brent@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A trait that allows you to clone readonly properties in PHP 8.1",
+            "homepage": "https://github.com/spatie/php-cloneable",
+            "keywords": [
+                "php_cloneable",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/php-cloneable/issues",
+                "source": "https://github.com/spatie/php-cloneable/tree/1.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-02-20T06:57:26+00:00"
         },
         {
             "name": "symfony/console",
