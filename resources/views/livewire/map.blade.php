@@ -1,18 +1,22 @@
 <div>
     <style>
         :root {
-            --tile-size: {{ 10 * $zoom }}px;
+            --tile-size: {{ 25 }}px;
             --tile-border-color: none;
             --tile-gap: 0;
         }
 
         .board {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
             box-shadow: 0 0 10px 0 #00000033;
             border-radius: 2px;
             display: grid;
-            max-width: 90%;
+            width: 100%;
+            height: 100%;
             overflow: scroll;
-            max-height: 90%;
             grid-template-columns: repeat({{ count($board) }}, var(--tile-size));
             grid-auto-rows: var(--tile-size);
             grid-gap: var(--tile-gap);
@@ -27,89 +31,139 @@
         }
 
         .tile.tile-border {
-            box-shadow: inset 0 0 0 1px var(--tile-border-color);
+            box-shadow: inset 0 0 0 2px var(--tile-border-color);
         }
 
-        .tile:hover {
-            box-shadow: inset 0 0 5px 1px #fff;
+        .tile:hover.clickable {
+            box-shadow: inset 0 0 4px 1px #fff;
             cursor: pointer;
         }
 
+        .tile.hasItem {
+            box-shadow:
+                inset 0 0 0 5px var(--tile-border-color),
+                inset 0 0 9px 6px #FFFFFF99
+            ;
+        }
+
         .tile .debug {
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
             display: none;
-            position: absolute;
-            background-color: #00000099;
-            color: #fff;
+            position: fixed;
+            bottom: 0;
+            right: 0;
             font-weight: bold;
             width: auto;
             height: auto;
-            padding: 3px 8px;
-            border: 1px solid black;
-            border-radius: 2px;
-            box-shadow: 0 0 5px 0 #00000066;
-            margin-left: 15px;
+            margin-left: 35px;
         }
 
         .tile:hover .debug {
             display: block;
         }
+
+        .menu {
+            padding: 3px 8px;
+            border: 1px solid black;
+            border-radius: 2px;
+            box-shadow: 0 0 5px 0 #00000066;
+            background-color: #00000099;
+            color: #fff;
+        }
+
+        .menu-top {
+            position: static;
+            top: 0;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-left {
+            position: static;
+            top: 50px;
+            left: 0;
+            width: 25%;
+        }
     </style>
 
-    <div class="">
-        <div class="flex flex-col justify-center items-center my-8">
-            <div class="board">
-                @foreach ($board as $x => $row)
-                    @foreach ($row as $y => $tile)
-                        <div class="
+    <div class="board">
+        @foreach ($board as $x => $row)
+            @foreach ($row as $y => $tile)
+                <div class="
                             tile
                             {{ $tile instanceof \App\Map\Tile\WithBorder ? 'tile-border' : ''}}
+                            {{ $tile instanceof \App\Map\Tile\Clickable && $tile->canClick($game) ? 'clickable' : ''}}
+                            {{ $tile->item ?? null ? 'hasItem' : '' }}
                         " style="
                             grid-area: {{ $y + 1 }} / {{ $x + 1 }} / {{ $y + 1 }} / {{ $x + 1 }};
                             --tile-color:{{ $tile->getColor() }};
                             @if($tile instanceof \App\Map\Tile\WithBorder)--tile-border-color:{{ $tile->getBorderColor() }}@endif
-                        ">
-                            <div class="debug">
-                                Tile: {{ $tile::class }}
-                                <br>
-                                Biome: {{ ($tile->biome ?? null) ? $tile->biome::class : '?' }}
-                                <br>
-                                Elevation: {{ $tile->elevation ?? '?' }}
-                                <br>
-                                Temperature: {{ $tile->temperature ?? '?' }}
-                                <br>
-                                Color: {{ $tile->getColor() }}
-                                <br>
-                                Noise: {{ $tile->noise ?? '?' }}
-                            </div>
-                        </div>
-                    @endforeach
-                @endforeach
-            </div>
+                        "
+                     wire:click.stop="handleClick({{ $x }}, {{ $y }})"
 
-            <div class="bg-black text-white flex justify-between py-2 px-4 mt-4">
-                <spa class="mx-4">
-                    Wood: 0
-                </spa>
-                <span class="mx-4">
-                    Stone: 0
-                </span>
-                <span class="mx-4">
-                    Gold: 0
-                </span>
-                <span class="mx-4">
-                    Fish: 0
-                </span>
-                <span class="mx-4">
-                    Flax: 0
-                </span>
-            </div>
-        </div>
+                >
+                    <div class="debug menu">
+                        Tile: {{ $tile::class }}
+                        <br>
+                        Biome: {{ ($tile->biome ?? null) ? $tile->biome::class : '?' }}
+                        <br>
+                        Elevation: {{ $tile->elevation ?? '?' }}
+                        <br>
+                        Temperature: {{ $tile->temperature ?? '?' }}
+                        <br>
+                        Color: {{ $tile->getColor() }}
+                        <br>
+                        Noise: {{ $tile->noise ?? '?' }}
+                    </div>
+                </div>
+            @endforeach
+        @endforeach
+    </div>
 
-        <div class="text-sm flex justify-center py-2">
-            <span>
-                Seed: <a class="underline hover:no-underline" href="/map/{{ $seed }}">{{ $seed }}</a>
+    <div class="menu-top menu flex justify-between py-2 px-2">
+            <span class="mx-4">
+                Wood: {{ $game->woodCount }}
             </span>
-        </div>
+            <span class="mx-4">
+                    Stone: {{ $game->stoneCount }}
+                </span>
+            <span class="mx-4">
+                    Gold: {{ $game->goldCount }}
+                </span>
+            <span class="mx-4">
+                    Fish: {{ $game->fishCount }}
+                </span>
+            <span class="mx-4">
+                    Flax: {{ $game->flaxCount }}
+                </span>
+    </div>
+
+    <div class="menu-left menu">
+        <h1>Shop</h1>
+        <button wire:click="selectItem('TreeFarmer')">Tree Farmer</button>
+        <button wire:click="selectItem('VeinFarmer')">Ore Farmer</button>
+    </div>
+
+    <div class="text-sm flex justify-center py-2">
+        @if($selectedItem = $game->selectedItem)
+            <span class="mx-2">
+                Selected item: {{ $selectedItem::class }}
+            </span>
+        @endif
+
+        <span class="mx-2">
+            Last update: {{ $game->gameTime }}
+        </span>
+
+        <span class="mx-2">
+                Seed: <a class="underline hover:no-underline" href="/map/{{ $game->seed }}">{{ $game->seed }}</a>
+            </span>
+
+        <span class="mx-2">
+            <button class="underline hover:no-underline" wire:click="resetGame">Reset</button>
+        </span>
     </div>
 
     <script>

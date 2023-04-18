@@ -6,7 +6,7 @@ function hex(float $value): string
         $value = 1.0;
     }
 
-    $hex = dechex($value * 255);
+    $hex = dechex((int) ($value * 255));
 
     if (strlen($hex) < 2) {
         $hex = "0" . $hex;

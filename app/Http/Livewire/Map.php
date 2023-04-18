@@ -2,14 +2,7 @@
 
 namespace App\Http\Livewire;
 
-use App\Map\Layer\BaseLayer;
-use App\Map\Layer\BiomeLayer;
-use App\Map\Layer\ElevationLayer;
-use App\Map\Layer\FishLayer;
-use App\Map\Layer\TemperatureLayer;
-use App\Map\Layer\LandLayer;
-use App\Map\Layer\VegetationLayer;
-use App\Map\Noise\PerlinGenerator;
+use App\Map\MapGame;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -27,20 +20,35 @@ class Map extends Component
 
     public function render(): View
     {
-        $generator = new PerlinGenerator($this->seed);
-
-        $board = (new BaseLayer(width: 100, height: 70))
-            ->add(new TemperatureLayer($generator))
-            ->add(new ElevationLayer($generator))
-            ->add(new BiomeLayer())
-            ->add(new LandLayer($generator))
-            ->add(new VegetationLayer($generator))
-            ->add(new FishLayer($generator))
-            ->generate();
+        $game = MapGame::resolve($this->seed)->persist();
 
         return view('livewire.map', [
-            'board' => $board,
+            'board' => $game
+                ->baseLayer
+                ->generate()
+                ->getBoard(),
+            'game' => $game,
         ]);
+    }
+
+    public function handleClick($x, $y): void
+    {
+        MapGame::resolve($this->seed)
+            ->handleClick($x, $y)
+            ->persist();
+    }
+
+    public function resetGame()
+    {
+        MapGame::resolve($this->seed)
+            ->destroy();
+    }
+
+    public function selectItem(string $className): void
+    {
+        MapGame::resolve($this->seed)
+            ->selectItem($className)
+            ->persist();
     }
 
     public function handleKeypress(string $key): void

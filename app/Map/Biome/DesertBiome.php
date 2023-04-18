@@ -2,7 +2,7 @@
 
 namespace App\Map\Biome;
 
-use App\Map\Tile\BaseTile;
+use App\Map\Tile\GenericTile\BaseTile;
 
 final class DesertBiome implements Biome
 {

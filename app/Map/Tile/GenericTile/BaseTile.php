@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Map\Tile;
+namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
+use App\Map\Tile\Tile;
 use Spatie\Cloneable\Cloneable;
 
 class BaseTile implements Tile

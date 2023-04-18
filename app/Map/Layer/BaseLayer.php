@@ -3,12 +3,13 @@
 namespace App\Map\Layer;
 
 
-use App\Map\Tile\BaseTile;
+use App\Map\Tile\GenericTile\BaseTile;
+use Generator;
 
 final class BaseLayer
 {
     /** @var \App\Map\Layer\Layer[] */
-    private array $layers = [];
+    private array $pendingLayers = [];
 
     /** @var \App\Map\Tile\Tile[][] */
     private array $board = [];
@@ -18,13 +19,13 @@ final class BaseLayer
         public readonly int $height,
     ) {}
 
-    public function generate(): array
+    public function generate(): self
     {
         for ($x = 0; $x < $this->width; $x++) {
             for ($y = 0; $y < $this->height; $y++) {
-                $tile = new BaseTile($x, $y);
+                $tile = $this->board[$x][$y] ?? new BaseTile($x, $y);
 
-                foreach ($this->layers as $layer) {
+                foreach ($this->pendingLayers as $layer) {
                     $tile = $layer->generate($tile, $this);
                 }
 
@@ -32,6 +33,16 @@ final class BaseLayer
             }
         }
 
+        $this->pendingLayers = [];
+
+        return $this;
+    }
+
+    /**
+     * @return \App\Map\Tile\Tile[][]
+     */
+    public function getBoard(): array
+    {
         return $this->board;
     }
 
@@ -42,8 +53,17 @@ final class BaseLayer
 
     public function add(Layer $layer): self
     {
-        $this->layers[] = $layer;
+        $this->pendingLayers[] = $layer;
 
         return $this;
+    }
+
+    public function loop(): Generator
+    {
+        foreach ($this->board as $row) {
+            foreach ($row as $tile) {
+                yield $tile;
+            }
+        }
     }
 }

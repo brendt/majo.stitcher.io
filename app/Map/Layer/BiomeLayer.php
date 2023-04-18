@@ -9,7 +9,7 @@ use App\Map\Biome\IcePlainsBiome;
 use App\Map\Biome\MesaBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Biome\TundraBiome;
-use App\Map\Tile\BaseTile;
+use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 
 final readonly class BiomeLayer implements Layer

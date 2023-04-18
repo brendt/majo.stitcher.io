@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Map\Tile;
+namespace App\Map\Tile\GenericTile;
+
+use App\Map\Tile\GenericTile\BaseTile;
 
 final class WaterTile extends BaseTile
 {

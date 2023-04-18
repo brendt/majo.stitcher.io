@@ -3,7 +3,7 @@
 namespace App\Map\Layer;
 
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Tile\BaseTile;
+use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 use Illuminate\Support\Facades\Cache;
 
