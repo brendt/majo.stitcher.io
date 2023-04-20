@@ -32,9 +32,10 @@ final class GoldVeinTile extends BaseTile implements WithBorder, Clickable, Hand
 
         if ($selectedItem?->canInteract($this) && $this->item === null) {
             $this->item = $selectedItem;
-            $game->unselectItem();
+            $game->buyItem($selectedItem);
         } else {
-            $game->goldCount += 1;
+            $handHeldItem = $game->getHandHeldItemForTile($this);
+            $game->goldCount += $handHeldItem?->getModifier() ?? 1;
         }
     }
 

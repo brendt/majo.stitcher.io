@@ -7,7 +7,11 @@ use App\Map\Tile\Tile;
 
 interface Item
 {
-    public function canInteract(Tile $tile): bool;
+    public function getId(): string;
 
-    public function handleTicks(MapGame $game, Tile $tile, int $ticks): void;
+    public function getName(): string;
+
+    public function getPrice(): ItemPrice;
+
+    public function canInteract(Tile $tile): bool;
 }

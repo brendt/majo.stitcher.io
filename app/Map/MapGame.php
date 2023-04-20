@@ -2,7 +2,14 @@
 
 namespace App\Map;
 
+use App\Map\Item\Axe;
+use App\Map\Item\FishingNet;
+use App\Map\Item\HandHeldItem;
 use App\Map\Item\Item;
+use App\Map\Item\ItemPrice;
+use App\Map\Item\Pickaxe;
+use App\Map\Item\TreeFarmer;
+use App\Map\Item\VeinFarmer;
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
 use App\Map\Layer\ElevationLayer;
@@ -16,8 +23,13 @@ use App\Map\Layer\TreeLayer;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\Clickable;
 use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\Tile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
 
+/**
+ * @property HandHeldItem[] $items
+ */
 final class MapGame
 {
     public function __construct(
@@ -30,6 +42,7 @@ final class MapGame
         public int $flaxCount = 0,
         public ?Item $selectedItem = null,
         public int $gameTime = 0,
+        public array $handHeldItems = [],
     ) {}
 
     public static function resolve(?int $seed = null): self
@@ -89,18 +102,56 @@ final class MapGame
         return $this;
     }
 
-    public function selectItem(string $className): self
+    public function selectItem(string $itemId): self
     {
-        $itemClass = '\\App\\Map\\Item\\' . $className;
+        $item = $this->getAvailableItems()[$itemId] ?? null;
 
-        $this->selectedItem = new $itemClass;
+        if (! $item) {
+            return $this;
+        }
+
+        $this->selectedItem = $item;
 
         return $this;
     }
 
-    public function unselectItem(): void
+    public function buyHandHeldItem(string $itemId): self
+    {
+        $item = $this->getAvailableItems()[$itemId] ?? null;
+
+        if (! $item instanceof HandHeldItem) {
+            return $this;
+        }
+
+        $this->buyItem($item);
+
+        return $this;
+    }
+
+    public function buyItem(Item $item): self
+    {
+        $itemPrice = $item->getPrice();
+
+        $this->woodCount -= $itemPrice->wood;
+        $this->goldCount -= $itemPrice->gold;
+        $this->stoneCount -= $itemPrice->stone;
+        $this->flaxCount -= $itemPrice->flax;
+        $this->fishCount -= $itemPrice->fish;
+
+        if ($item instanceof HandHeldItem) {
+            $this->handHeldItems[$item->getId()] = $item;
+        }
+
+        $this->unselectItem();
+
+        return $this;
+    }
+
+    public function unselectItem(): self
     {
         $this->selectedItem = null;
+
+        return $this;
     }
 
     private function updateGameTime(): void
@@ -118,5 +169,51 @@ final class MapGame
         }
 
         $this->gameTime = $newTime;
+    }
+
+    public function canBuy(Item $item): bool
+    {
+        $itemPrice = $item->getPrice();
+
+        return
+            $itemPrice->wood <= $this->woodCount
+            && $itemPrice->gold <= $this->goldCount
+            && $itemPrice->stone <= $this->stoneCount
+            && $itemPrice->flax <= $this->flaxCount
+            && $itemPrice->fish <= $this->fishCount;
+    }
+
+    /**
+     * @return Item[]|Collection
+     */
+    public function getAvailableItems(): Collection
+    {
+        $handHeldItems = collect([
+            new Pickaxe(),
+            new Axe(),
+            new FishingNet(),
+        ])
+            ->reject(fn (HandHeldItem $item) => isset($this->handHeldItems[$item->getId()]));
+
+
+        $tileItems = [
+            new TreeFarmer(),
+            new VeinFarmer(),
+        ];
+
+        return $handHeldItems
+            ->merge($tileItems)
+            ->mapWithKeys(fn (Item $item) => [$item->getId() => $item]);
+    }
+
+    public function getHandHeldItemForTile(Tile $tile): ?HandHeldItem
+    {
+        foreach ($this->handHeldItems as $item) {
+            if ($item->canInteract($tile)) {
+                return $item;
+            }
+        }
+
+        return null;
     }
 }

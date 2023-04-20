@@ -40,9 +40,10 @@ final class StoneVeinTile extends BaseTile implements WithBorder, Clickable, Han
 
         if ($selectedItem?->canInteract($this) && $this->item === null) {
             $this->item = $selectedItem;
-            $game->unselectItem();
+            $game->buyItem($selectedItem);
         } else {
-            $game->stoneCount += 1;
+            $handHeldItem = $game->getHandHeldItemForTile($this);
+            $game->stoneCount += $handHeldItem?->getModifier() ?? 1;
         }
     }
 

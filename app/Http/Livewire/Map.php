@@ -44,10 +44,17 @@ class Map extends Component
             ->destroy();
     }
 
-    public function selectItem(string $className): void
+    public function buyHandHeldItem(string $itemId): void
     {
         MapGame::resolve($this->seed)
-            ->selectItem($className)
+            ->buyHandHeldItem($itemId)
+            ->persist();
+    }
+
+    public function selectItem(string $itemId): void
+    {
+        MapGame::resolve($this->seed)
+            ->selectItem($itemId)
             ->persist();
     }
 

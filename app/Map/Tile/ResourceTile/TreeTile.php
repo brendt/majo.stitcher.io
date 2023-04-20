@@ -40,9 +40,10 @@ final class TreeTile extends BaseTile implements WithBorder, Clickable, HandlesT
 
         if ($selectedItem?->canInteract($this) && $this->item === null) {
             $this->item = $selectedItem;
-            $game->unselectItem();
+            $game->buyItem($selectedItem);
         } else {
-            $game->woodCount += 1;
+            $handHeldItem = $game->getHandHeldItemForTile($this);
+            $game->woodCount += $handHeldItem?->getModifier() ?? 1;
         }
     }
 

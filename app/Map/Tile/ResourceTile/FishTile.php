@@ -36,7 +36,15 @@ final class FishTile extends BaseTile implements WithBorder, Clickable, HandlesT
 
     public function handleClick(MapGame $game): void
     {
-        $game->fishCount += 1;
+        $selectedItem = $game->selectedItem;
+
+        if ($selectedItem?->canInteract($this) && $this->item === null) {
+            $this->item = $selectedItem;
+            $game->buyItem($selectedItem);
+        } else {
+            $handHeldItem = $game->getHandHeldItemForTile($this);
+            $game->fishCount += $handHeldItem?->getModifier() ?? 1;
+        }
     }
 
     public function canClick(MapGame $game): bool
