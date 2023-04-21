@@ -3,18 +3,39 @@
 namespace App\Http\Livewire;
 
 use App\Game\Board;
+use App\Game\ShortBoard;
 use Livewire\Component;
 
 class Game extends Component
 {
+    protected $listeners = ['handleKeypress'];
+
+    public string $type = 'normal';
+
+    private function resolveBoard(): Board|ShortBoard|null
+    {
+        if ($this->type === 'short') {
+            return ShortBoard::resolve();
+        }
+
+        return Board::resolve();
+    }
+
+    private function initBoard(): Board|ShortBoard
+    {
+        if ($this->type === 'short') {
+            return ShortBoard::init();
+        }
+
+        return Board::init();
+    }
+
     public function mount(): void
     {
-//        $board = Board::init();
-
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         if ($board === null) {
-            $board = Board::init();
+            $board = $this->initBoard();
         }
 
         $board->persist();
@@ -22,7 +43,7 @@ class Game extends Component
 
     public function render()
     {
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         return view('livewire.game', [
             'board' => $board,
@@ -31,7 +52,7 @@ class Game extends Component
 
     public function showHint(): void
     {
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         if (! $board) {
             return;
@@ -42,7 +63,7 @@ class Game extends Component
 
     public function resetBoard(): void
     {
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         if (! $board) {
             return;
@@ -50,12 +71,12 @@ class Game extends Component
 
         $board->destroy();
 
-        Board::init()->persist();
+        $this->initBoard()->persist();
     }
 
     public function shuffleBoard(): void
     {
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         if (! $board) {
             return;
@@ -64,9 +85,14 @@ class Game extends Component
         $board->shuffle()->persist();
     }
 
+    public function test(): void
+    {
+        ShortBoard::resolve()->handleEmptyRows()->persist();
+    }
+
     public function handleClick($x, $y): void
     {
-        $board = Board::resolve();
+        $board = $this->resolveBoard();
 
         $tileToSelect = $board->get($x, $y);
 
@@ -84,8 +110,7 @@ class Game extends Component
             [$a, $b] = $highlightedTiles;
 
             if ($a->isSame($tileToSelect) || $b->isSame($tileToSelect)) {
-                $board->remove($a);
-                $board->remove($b);
+                $board->removePair($a, $b);
 
                 return;
             }
@@ -94,13 +119,34 @@ class Game extends Component
         $currentlySelectedTile = $board->getCurrentlySelectedTile();
 
         if ($currentlySelectedTile?->matches($tileToSelect)) {
-            $board->remove($currentlySelectedTile);
-            $board->remove($tileToSelect);
+            $board->removePair($tileToSelect, $currentlySelectedTile);
         } elseif ($currentlySelectedTile?->isSame($tileToSelect)) {
             $tileToSelect->toggleSelected();
         } else {
             $board->clearSelectedTiles();
             $tileToSelect->toggleSelected();
         }
+    }
+
+    public function clickHighlightedTiles(): void
+    {
+        $board = $this->resolveBoard();
+
+        $highlightedTiles = $board->findHighlightedTiles();
+
+        if ($highlightedTiles) {
+            $board->removePair(...$highlightedTiles);
+            $board->persist();
+        }
+    }
+
+    public function handleKeypress(string $key): void
+    {
+        match ($key) {
+            'h' => $this->showHint(),
+            's' => $this->shuffleBoard(),
+            'Enter' => $this->clickHighlightedTiles(),
+            default => null,
+        };
     }
 }

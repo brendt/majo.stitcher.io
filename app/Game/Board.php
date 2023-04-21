@@ -142,6 +142,12 @@ final class Board
         unset($this->tiles[$tile->x][$tile->y][$tile->z]);
     }
 
+    public function removePair(Tile $a, Tile $b): void
+    {
+        $this->remove($a);
+        $this->remove($b);
+    }
+
     public function canSelect(Tile $tile): bool
     {
         $isOnTop = $this->get($tile->x, $tile->y)->isSame($tile);

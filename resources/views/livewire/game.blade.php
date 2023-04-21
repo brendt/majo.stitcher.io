@@ -63,14 +63,6 @@
 
                 <button class="underline hover:no-underline" wire:click="resetBoard">New Game</button>
             </div>
-        @elseif($board->isStuck())
-            <div>
-                stuck :(
-
-                <button class="underline hover:no-underline" wire:click="shuffleBoard">Shuffle</button>
-
-                <button class="underline hover:no-underline" wire:click="resetBoard">Reset</button>
-            </div>
         @else
             <div>
                 <div class="board">
@@ -104,14 +96,21 @@
                 </div>
 
                 <div class="flex justify-between p-4">
-                    <span>Available pairs: {{ $board->getAvailablePairs() }}</span>
-                    <span>Tiles left: {{ $board->getTileCount() }}</span>
-                    <button class="underline hover:no-underline" wire:click="showHint">Show Hint</button>
-                    <button class="underline hover:no-underline" wire:click="resetBoard">Reset</button>
-                    <button class="underline hover:no-underline" wire:click="shuffleBoard">Shuffle</button>
+                    @if($board instanceof \App\Game\ShortBoard)
+                        <span class="mx-2">Score: {{ $board->getScore() }}</span>
+                    @endif
+                    <span class="mx-2">Available pairs: {{ $board->getAvailablePairs() }}</span>
+                    <span class="mx-2">Tiles left: {{ $board->getTileCount() }}</span>
+                    <button class="mx-2 underline hover:no-underline" wire:click="showHint">Show Hint</button>
+                    <button class="mx-2 underline hover:no-underline" wire:click="resetBoard">Reset</button>
+                    <button class="mx-2 underline hover:no-underline" wire:click="shuffleBoard">Shuffle</button>
                 </div>
             </div>
         @endif
     </div>
+
+    <script>
+        window.addEventListener('keydown', (event) => Livewire.emit('handleKeypress', event.key));
+    </script>
 
 </div>
