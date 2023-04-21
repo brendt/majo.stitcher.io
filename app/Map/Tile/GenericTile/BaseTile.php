@@ -48,4 +48,14 @@ class BaseTile implements Tile
     {
         return $this->biome;
     }
+
+    public function getX(): int
+    {
+        return $this->x ?? dd($this);
+    }
+
+    public function getY(): int
+    {
+        return $this->y;
+    }
 }

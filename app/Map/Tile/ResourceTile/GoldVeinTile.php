@@ -2,18 +2,27 @@
 
 namespace App\Map\Tile\ResourceTile;
 
-use App\Map\Item\Item;
+use App\Map\Biome\Biome;
+use App\Map\Item\TileItem;
 use App\Map\MapGame;
+use App\Map\Tile\ClickableResourceTile;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\Clickable;
-use App\Map\Tile\HandlesTicks;
-use App\Map\Tile\WithBorder;
+use App\Map\Tile\ResourceTile;
+use App\Map\Tile\TickableTile;
 
-final class GoldVeinTile extends BaseTile implements WithBorder, Clickable, HandlesTicks
+final class GoldVeinTile extends BaseTile implements ResourceTile
 {
+    use ClickableResourceTile;
+    use TickableTile;
+
     public function __construct(
+        public readonly int $x,
+        public readonly int $y,
+        public readonly ?float $temperature,
+        public readonly ?float $elevation,
+        public readonly ?Biome $biome,
         public readonly float $noise,
-        public ?Item $item = null,
+        public ?TileItem $item = null,
     ) {}
 
     public function getColor(): string
@@ -26,32 +35,18 @@ final class GoldVeinTile extends BaseTile implements WithBorder, Clickable, Hand
         return '#FFEC53';
     }
 
-    public function handleClick(MapGame $game): void
-    {
-        $selectedItem = $game->selectedItem;
-
-        if ($selectedItem?->canInteract($this) && $this->item === null) {
-            $this->item = $selectedItem;
-            $game->buyItem($selectedItem);
-        } else {
-            $handHeldItem = $game->getHandHeldItemForTile($this);
-            $game->goldCount += $handHeldItem?->getModifier() ?? 1;
-        }
-    }
-
-    public function canClick(MapGame $game): bool
-    {
-        $selectedItem = $game->selectedItem;
-
-        if ($selectedItem) {
-            return $selectedItem->canInteract($this) && $this->item === null;
-        }
-
-        return true;
-    }
-
     public function handleTicks(MapGame $game, int $ticks): void
     {
         $this->item?->handleTicks($game, $this, $ticks);
+    }
+
+    public function getResource(): Resource
+    {
+        return Resource::Gold;
+    }
+
+    public function getItem(): ?TileItem
+    {
+        return $this->item;
     }
 }

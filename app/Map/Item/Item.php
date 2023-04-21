@@ -13,5 +13,5 @@ interface Item
 
     public function getPrice(): ItemPrice;
 
-    public function canInteract(Tile $tile): bool;
+    public function canInteract(MapGame $game, Tile $tile): bool;
 }

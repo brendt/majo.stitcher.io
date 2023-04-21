@@ -2,13 +2,10 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Biome\DesertBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\ResourceTile\FlaxTile;
-use App\Map\Tile\ResourceTile\GoldVeinTile;
 use App\Map\Tile\GenericTile\LandTile;
-use App\Map\Tile\ResourceTile\StoneVeinTile;
 use App\Map\Tile\Tile;
 
 final readonly class FlaxLayer implements Layer
@@ -33,6 +30,13 @@ final readonly class FlaxLayer implements Layer
             return $tile;
         }
 
-        return new FlaxTile($noise);
+        return new FlaxTile(
+            x: $tile->x,
+            y: $tile->y,
+            temperature: $tile->temperature,
+            elevation: $tile->elevation,
+            biome: $tile->biome,
+            noise: $noise
+        );
     }
 }

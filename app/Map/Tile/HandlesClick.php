@@ -4,7 +4,7 @@ namespace App\Map\Tile;
 
 use App\Map\MapGame;
 
-interface Clickable
+interface HandlesClick
 {
     public function canClick(MapGame $game): bool;
 

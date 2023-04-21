@@ -2,14 +2,20 @@
 
 namespace App\Map;
 
-use App\Map\Item\Axe;
-use App\Map\Item\FishingNet;
+use App\Map\Item\HandHeldItem\Axe;
+use App\Map\Item\HandHeldItem\FishingNet;
 use App\Map\Item\HandHeldItem;
 use App\Map\Item\Item;
 use App\Map\Item\ItemPrice;
-use App\Map\Item\Pickaxe;
-use App\Map\Item\TreeFarmer;
-use App\Map\Item\VeinFarmer;
+use App\Map\Item\HandHeldItem\Pickaxe;
+use App\Map\Item\HandHeldItem\Shears;
+use App\Map\Item\TileItem;
+use App\Map\Item\TileItem\FishFarmer;
+use App\Map\Item\TileItem\FlaxFarmer;
+use App\Map\Item\TileItem\GoldVeinFarmer;
+use App\Map\Item\TileItem\TradingPost;
+use App\Map\Item\TileItem\TreeFarmer;
+use App\Map\Item\TileItem\StoneVeinFarmer;
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
 use App\Map\Layer\ElevationLayer;
@@ -21,8 +27,11 @@ use App\Map\Layer\StoneVeinLayer;
 use App\Map\Layer\TemperatureLayer;
 use App\Map\Layer\TreeLayer;
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Tile\Clickable;
+use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\ResourceTile;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Tile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
@@ -48,10 +57,22 @@ final class MapGame
     public static function resolve(?int $seed = null): self
     {
         if ($fromSession = Session::get('map')) {
-            return unserialize($fromSession);
+            $game = unserialize($fromSession);
+        } else {
+            $game = self::init($seed ?? 1);
         }
 
-        return self::init($seed ?? 1);
+        if (request()->query->has('cheat')) {
+            foreach (Resource::cases() as $case) {
+                $property = $case->getCountPropertyName();
+
+                while ($game->{$property} < 1000) {
+                    $game->{$property} += 1000;
+                }
+            }
+        }
+
+        return $game;
     }
 
     public function persist(): self
@@ -95,7 +116,7 @@ final class MapGame
     {
         $tile = $this->baseLayer->get($x, $y);
 
-        if ($tile instanceof Clickable && $tile->canClick($this)) {
+        if ($tile instanceof HandlesClick && $tile->canClick($this)) {
             $tile->handleClick($this);
         }
 
@@ -192,13 +213,17 @@ final class MapGame
             new Pickaxe(),
             new Axe(),
             new FishingNet(),
+            new Shears(),
         ])
             ->reject(fn (HandHeldItem $item) => isset($this->handHeldItems[$item->getId()]));
 
-
         $tileItems = [
             new TreeFarmer(),
-            new VeinFarmer(),
+            new StoneVeinFarmer(),
+            new GoldVeinFarmer(),
+            new FlaxFarmer(),
+            new FishFarmer(),
+            new TradingPost(),
         ];
 
         return $handHeldItems
@@ -215,5 +240,46 @@ final class MapGame
         }
 
         return null;
+    }
+
+    public function incrementResource(Resource $resource, int $amount): self
+    {
+        $property = $resource->getCountPropertyName();
+
+        $this->{$property} += $amount;
+
+        return $this;
+    }
+
+    public function resourcePerTick(Resource $resource): int
+    {
+        $count = 0;
+
+        foreach ($this->baseLayer->loop() as $tile) {
+            if (! $tile instanceof ResourceTile) {
+                continue;
+            }
+
+            if ($tile->getResource() !== $resource) {
+                continue;
+            }
+
+            $count += $tile->getItem()?->getModifier() ?? 0;
+        }
+
+        return $count;
+    }
+
+    /**
+     * @return Tile[]
+     */
+    public function getNeighbours(Tile $tile): array
+    {
+        return array_filter([
+            $this->baseLayer->get($tile->getX() - 1, $tile->getY()),
+            $this->baseLayer->get($tile->getX() + 1, $tile->getY()),
+            $this->baseLayer->get($tile->getX(), $tile->getY() - 1),
+            $this->baseLayer->get($tile->getX(), $tile->getY() + 1),
+        ]);
     }
 }

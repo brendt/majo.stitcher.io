@@ -25,7 +25,14 @@ final readonly class TreeLayer implements Layer
                 return $tile;
             }
 
-            return new TreeTile($noise);
+            return new TreeTile(
+                x: $tile->x,
+                y: $tile->y,
+                temperature: $tile->temperature,
+                elevation: $tile->elevation,
+                biome: $tile->biome,
+                noise: $noise,
+            );
         }
 
         return $tile;

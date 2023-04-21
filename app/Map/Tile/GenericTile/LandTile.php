@@ -2,10 +2,24 @@
 
 namespace App\Map\Tile\GenericTile;
 
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Biome\Biome;
+use App\Map\Item\HasMenu;
+use App\Map\Item\TileItem;
+use App\Map\MapGame;
+use App\Map\Tile\HandlesClick;
+use App\Map\Tile\HasBorder;
 
-final class LandTile extends BaseTile
+final class LandTile extends BaseTile implements HandlesClick, HasBorder
 {
+    public function __construct(
+        public readonly int $x,
+        public readonly int $y,
+        public readonly ?float $temperature,
+        public readonly ?float $elevation,
+        public readonly ?Biome $biome,
+        public ?TileItem $item = null,
+    ) {}
+
     public static function fromBase(BaseTile $tile): self
     {
         return new self(...(array) $tile);
@@ -14,42 +28,41 @@ final class LandTile extends BaseTile
     public function getColor(): string
     {
         return $this->getBiome()->getGrassColor($this);
-        return match (true) {
-            $this->temperature <= 0.4 => $this->getColdColor(),
-            $this->temperature <= 0.8 => $this->getWarmColor(),
-            default => $this->getHotColor(),
-        };
     }
 
-    public function getColdColor(): string
+    public function handleClick(MapGame $game): void
     {
-        $hex = hex($this->elevation);
+        $selectedItem = $game->selectedItem;
 
-        return match (true) {
-            $this->elevation <= 0.8 => "#00{$hex}66",
-            default => "#FFFFFF",
-        };
+        if ($selectedItem?->canInteract($game, $this) && $this->item === null) {
+            $this->item = $selectedItem;
+            $game->buyItem($selectedItem);
+
+            return;
+        }
+
+        if ($this->item instanceof HasMenu) {
+            $this->item->toggleMenu();
+        }
     }
 
-    public function getWarmColor(): string
+    public function canClick(MapGame $game): bool
     {
-        $hex = hex($this->elevation);
+        $selectedItem = $game->selectedItem;
 
-        return match (true) {
-            $this->elevation <= 0.8 => "#00{$hex}00",
-            default => "#{$hex}{$hex}{$hex}",
-        };
+        if ($selectedItem) {
+            return $selectedItem->canInteract($game, $this) && $this->item === null;
+        }
+
+        return true;
     }
 
-    private function getHotColor(): string
+    public function getBorderColor(): string
     {
-        $hex = hex($this->elevation);
+        if ($this->item) {
+            return 'red';
+        }
 
-        $redHex = hex($this->elevation / 1.4);
-
-        return match (true) {
-            $this->elevation <= 0.8 => "#{$redHex}{$hex}00",
-            default => "#{$hex}{$hex}{$hex}",
-        };
+        return '';
     }
 }

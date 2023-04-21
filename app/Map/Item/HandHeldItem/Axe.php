@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Map\Item;
+namespace App\Map\Item\HandHeldItem;
 
+use App\Map\Item\HandHeldItem;
+use App\Map\Item\ItemPrice;
+use App\Map\MapGame;
 use App\Map\Tile\ResourceTile\TreeTile;
 use App\Map\Tile\Tile;
 
@@ -25,7 +28,7 @@ final class Axe implements HandHeldItem
         );
     }
 
-    public function canInteract(Tile $tile): bool
+    public function canInteract(MapGame $game, Tile $tile): bool
     {
         return $tile instanceof TreeTile;
     }

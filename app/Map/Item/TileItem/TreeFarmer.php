@@ -1,14 +1,26 @@
 <?php
 
-namespace App\Map\Item;
+namespace App\Map\Item\TileItem;
 
+use App\Map\Item\ItemPrice;
+use App\Map\Item\TileItem;
 use App\Map\MapGame;
 use App\Map\Tile\Tile;
 use App\Map\Tile\ResourceTile\TreeTile;
 
 final class TreeFarmer implements TileItem
 {
-    public function canInteract(Tile $tile): bool
+    public function getId(): string
+    {
+        return 'TreeFarmer';
+    }
+
+    public function getName(): string
+    {
+        return 'Tree Farmer';
+    }
+
+    public function canInteract(MapGame $game, Tile $tile): bool
     {
         return $tile instanceof TreeTile;
     }
@@ -26,13 +38,8 @@ final class TreeFarmer implements TileItem
         );
     }
 
-    public function getName(): string
+    public function getModifier(): int
     {
-        return 'Tree Farmer';
-    }
-
-    public function getId(): string
-    {
-        return 'TreeFarmer';
+        return 1;
     }
 }

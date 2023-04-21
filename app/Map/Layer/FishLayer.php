@@ -31,6 +31,13 @@ final readonly class FishLayer implements Layer
             return $tile;
         }
 
-        return new FishTile($noise);
+        return new FishTile(
+            x: $tile->x,
+            y: $tile->y,
+            temperature: $tile->temperature,
+            elevation: $tile->elevation,
+            biome: $tile->biome,
+            noise: $noise,
+        );
     }
 }

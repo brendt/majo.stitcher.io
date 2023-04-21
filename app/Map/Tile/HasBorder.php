@@ -2,7 +2,7 @@
 
 namespace App\Map\Tile;
 
-interface WithBorder
+interface HasBorder
 {
     public function getBorderColor(): string;
 }

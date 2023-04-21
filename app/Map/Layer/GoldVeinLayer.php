@@ -27,7 +27,14 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile($noise);
+            return new GoldVeinTile(
+                x: $tile->x,
+                y: $tile->y,
+                temperature: $tile->temperature,
+                elevation: $tile->elevation,
+                biome: $tile->biome,
+                noise: $noise
+            );
         }
 
         if (! $tile instanceof LandTile) {
@@ -41,7 +48,14 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile($noise);
+            return new GoldVeinTile(
+                x: $tile->x,
+                y: $tile->y,
+                temperature: $tile->temperature,
+                elevation: $tile->elevation,
+                biome: $tile->biome,
+                noise: $noise
+            );
         }
 
         if (
@@ -54,7 +68,14 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile($noise);
+            return new GoldVeinTile(
+                x: $tile->x,
+                y: $tile->y,
+                temperature: $tile->temperature,
+                elevation: $tile->elevation,
+                biome: $tile->biome,
+                noise: $noise
+            );
         }
 
         return $tile;

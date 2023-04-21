@@ -7,7 +7,6 @@
         }
 
         .game-window {
-            outline: 2px solid red;
             height: 100%;
             width: 100vw;
             overflow: scroll;
@@ -44,11 +43,17 @@
             cursor: pointer;
         }
 
+        .tile.tile-border:hover.clickable {
+            box-shadow: inset 0 0 4px 2px var(--tile-border-color);
+        }
+
+        .hasSelectedItem .tile.unclickable {
+            box-shadow: inset 0 0 0 20px #00000066;
+        }
+
         .tile.hasItem {
-            box-shadow:
-                inset 0 0 0 5px var(--tile-border-color),
-                inset 0 0 9px 6px #FFFFFF99
-            ;
+            box-shadow: inset 0 0 0 5px var(--tile-border-color),
+            inset 0 0 9px 6px #FFFFFF99;
         }
 
         .tile .debug {
@@ -91,6 +96,12 @@
             width: 100%;
         }
 
+        .tile-menu {
+            position: absolute;
+            margin-left: 30px;
+            margin-top: 0;
+        }
+
         .menu-left {
             top: 50px;
             left: 0;
@@ -114,27 +125,27 @@
 
     <div class="game-window">
         <div class="menu menu-top flex justify-between py-2 px-2">
-                @foreach ($game->handHeldItems as $item)
-                    <span class="mx-4">
+            @foreach ($game->handHeldItems as $item)
+                <span class="mx-4">
                     {{ $item->getName() }}
                 </span>
-                @endforeach
-                <span class="mx-4">
-                Wood: {{ $game->woodCount }}
+            @endforeach
+            <span class="mx-4">
+                Wood: {{ $game->woodCount }} <span class="text-sm">({{ $game->resourcePerTick(\App\Map\Tile\ResourceTile\Resource::Wood) }}/t)</span>
             </span>
-                <span class="mx-4">
-                    Stone: {{ $game->stoneCount }}
+            <span class="mx-4">
+                    Stone: {{ $game->stoneCount }} <span class="text-sm">({{ $game->resourcePerTick(\App\Map\Tile\ResourceTile\Resource::Stone) }}/t)</span>
                 </span>
-                <span class="mx-4">
-                    Gold: {{ $game->goldCount }}
+            <span class="mx-4">
+                    Gold: {{ $game->goldCount }} <span class="text-sm">({{ $game->resourcePerTick(\App\Map\Tile\ResourceTile\Resource::Gold) }}/t)</span>
                 </span>
-                <span class="mx-4">
-                    Fish: {{ $game->fishCount }}
+            <span class="mx-4">
+                    Fish: {{ $game->fishCount }} <span class="text-sm">({{ $game->resourcePerTick(\App\Map\Tile\ResourceTile\Resource::Fish) }}/t)</span>
                 </span>
-                <span class="mx-4">
-                    Flax: {{ $game->flaxCount }}
+            <span class="mx-4">
+                    Flax: {{ $game->flaxCount }} <span class="text-sm">({{ $game->resourcePerTick(\App\Map\Tile\ResourceTile\Resource::Flax) }}/t)</span>
                 </span>
-            </div>
+        </div>
 
         <div class="menu menu-left">
             <h1>Shop</h1>
@@ -159,40 +170,40 @@
         </div>
 
         <div class="menu menu-bottom flex justify-center py-2">
-                @if($selectedItem = $game->selectedItem)
-                    <span class="mx-2">
+            @if($selectedItem = $game->selectedItem)
+                <span class="mx-2">
                         Selected item: {{ $selectedItem::class }}
                     </span>
-                @endif
+            @endif
 
-                <span class="mx-2">
+            <span class="mx-2">
                     Last update: {{ $game->gameTime }}
                 </span>
 
-                <span class="mx-2">
+            <span class="mx-2">
                     Seed: <a class="underline hover:no-underline" href="/map/{{ $game->seed }}">{{ $game->seed }}</a>
                 </span>
 
-                <span class="mx-2">
-                    <button class="underline hover:no-underline" wire:click="resetGame">Reset</button>
-                </span>
-            </div>
+            <span class="mx-2">
+                <button class="underline hover:no-underline" wire:click="resetGame">Reset</button>
+            </span>
+        </div>
 
-        <div class="board">
+        <div class="board {{ $game->selectedItem !== null ? 'hasSelectedItem' : 'noSelectedItem' }}">
             @foreach ($board as $x => $row)
                 @foreach ($row as $y => $tile)
+                    @php($item = $tile->item ?? null)
                     <div class="
                             tile
-                            {{ $tile instanceof \App\Map\Tile\WithBorder ? 'tile-border' : ''}}
-                            {{ $tile instanceof \App\Map\Tile\Clickable && $tile->canClick($game) ? 'clickable' : ''}}
-                            {{ $tile->item ?? null ? 'hasItem' : '' }}
+                            {{ $tile instanceof \App\Map\Tile\HasBorder ? 'tile-border' : ''}}
+                            {{ $tile instanceof \App\Map\Tile\HandlesClick && $tile->canClick($game) ? 'clickable' : 'unclickable'}}
+                            {{ $item ? 'hasItem' : '' }}
                         " style="
                             grid-area: {{ $y + 1 }} / {{ $x + 1 }} / {{ $y + 1 }} / {{ $x + 1 }};
                             --tile-color:{{ $tile->getColor() }};
-                            @if($tile instanceof \App\Map\Tile\WithBorder)--tile-border-color:{{ $tile->getBorderColor() }}@endif
+                            @if($tile instanceof \App\Map\Tile\HasBorder && $tile->getBorderColor())--tile-border-color:{{ $tile->getBorderColor() }}@endif
                         "
                          wire:click.stop="handleClick({{ $x }}, {{ $y }})"
-
                     >
                         <div class="debug menu">
                             Tile: {{ $tile::class }}
@@ -206,8 +217,23 @@
                             Color: {{ $tile->getColor() }}
                             <br>
                             Noise: {{ $tile->noise ?? '?' }}
+                            <br>
+{{--                            Neighbours:--}}
+{{--                            <ul>--}}
+{{--                                @foreach($game->getNeighbours($tile) as $neighbour)--}}
+{{--                                    <li class="ml-2">--}}
+{{--                                        {{ $neighbour::class }}--}}
+{{--                                    </li>--}}
+{{--                                @endforeach--}}
+{{--                            </ul>--}}
                         </div>
                     </div>
+
+                    @if($item instanceof \App\Map\Item\HasMenu && $item->menuShown())
+                        <div class="menu tile-menu">
+                            {{ $item->getMenu() }}
+                        </div>
+                    @endif
                 @endforeach
             @endforeach
         </div>
