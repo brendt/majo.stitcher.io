@@ -2,14 +2,14 @@
 
 namespace App\Map;
 
+use App\Http\Livewire\Map;
 use App\Map\Item\HandHeldItem\Axe;
 use App\Map\Item\HandHeldItem\FishingNet;
 use App\Map\Item\HandHeldItem;
+use App\Map\Item\HasMenu;
 use App\Map\Item\Item;
-use App\Map\Item\ItemPrice;
 use App\Map\Item\HandHeldItem\Pickaxe;
 use App\Map\Item\HandHeldItem\Shears;
-use App\Map\Item\TileItem;
 use App\Map\Item\TileItem\FishFarmer;
 use App\Map\Item\TileItem\FlaxFarmer;
 use App\Map\Item\TileItem\GoldVeinFarmer;
@@ -27,7 +27,6 @@ use App\Map\Layer\StoneVeinLayer;
 use App\Map\Layer\TemperatureLayer;
 use App\Map\Layer\TreeLayer;
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\ResourceTile;
@@ -52,15 +51,19 @@ final class MapGame
         public ?Item $selectedItem = null,
         public int $gameTime = 0,
         public array $handHeldItems = [],
+        public bool $paused = false,
+        public ?Menu $menu = null,
     ) {}
 
-    public static function resolve(?int $seed = null): self
+    public static function resolve(Map $component, ?int $seed = null): self
     {
         if ($fromSession = Session::get('map')) {
             $game = unserialize($fromSession);
         } else {
             $game = self::init($seed ?? 1);
         }
+
+        $game->setComponent($component);
 
         if (request()->query->has('cheat')) {
             foreach (Resource::cases() as $case) {
@@ -73,6 +76,11 @@ final class MapGame
         }
 
         return $game;
+    }
+
+    private function setComponent(Map $component): void
+    {
+        $this->component = $component;
     }
 
     public function persist(): self
@@ -281,5 +289,28 @@ final class MapGame
             $this->baseLayer->get($tile->getX(), $tile->getY() - 1),
             $this->baseLayer->get($tile->getX(), $tile->getY() + 1),
         ]);
+    }
+
+    public function openMenu(HasMenu $hasMenu): void
+    {
+        $this->paused = true;
+        $this->menu = $hasMenu->getMenu();
+        $this->component->form = $this->menu->form;
+    }
+
+    public function closeMenu(): self
+    {
+        $this->paused = false;
+        $this->menu = null;
+
+        return $this;
+    }
+
+    public function saveMenu(array $form): self
+    {
+        $this->menu->hasMenu->saveMenu($form);
+        $this->closeMenu();
+
+        return $this;
     }
 }

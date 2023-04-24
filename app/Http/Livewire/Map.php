@@ -16,11 +16,13 @@ class Map extends Component
 
     public float $zoom = 1.0;
 
+    public array $form = [];
+
     protected $listeners = ['handleKeypress'];
 
     public function render(): View
     {
-        $game = MapGame::resolve($this->seed)->persist();
+        $game = MapGame::resolve($this, $this->seed)->persist();
 
         return view('livewire.map', [
             'board' => $game
@@ -33,27 +35,27 @@ class Map extends Component
 
     public function handleClick($x, $y): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve($this, $this->seed)
             ->handleClick($x, $y)
             ->persist();
     }
 
-    public function resetGame()
+    public function resetGame(): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve($this, $this->seed)
             ->destroy();
     }
 
     public function buyHandHeldItem(string $itemId): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve($this, $this->seed)
             ->buyHandHeldItem($itemId)
             ->persist();
     }
 
     public function selectItem(string $itemId): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve($this, $this->seed)
             ->selectItem($itemId)
             ->persist();
     }
@@ -61,6 +63,7 @@ class Map extends Component
     public function handleKeypress(string $key): void
     {
         match ($key) {
+            'Escape' => $this->closeMenu(),
             'ArrowUp', 'w' => $this->handleUp(),
             'ArrowDown', 's' => $this->handleDown(),
             'ArrowLeft', 'a' => $this->handleLeft(),
@@ -69,6 +72,20 @@ class Map extends Component
             '-', '_' => $this->zoomOut(),
             default => null,
         };
+    }
+
+    public function saveMenu(): void
+    {
+        MapGame::resolve($this, $this->seed)
+            ->saveMenu($this->form)
+            ->persist();
+    }
+
+    public function closeMenu(): void
+    {
+        MapGame::resolve($this, $this->seed)
+            ->closeMenu()
+            ->persist();
     }
 
     public function handleUp(): void

@@ -2,15 +2,11 @@
 
 namespace App\Map\Item;
 
-use Illuminate\View\View;
+use App\Map\Menu;
 
 interface HasMenu
 {
-    public function menuShown(): bool;
+    public function getMenu(): ?Menu;
 
-    public function toggleMenu(): void;
-
-    public function saveMenu(): void;
-
-    public function getMenu(): View;
+    public function saveMenu(array $form): void;
 }

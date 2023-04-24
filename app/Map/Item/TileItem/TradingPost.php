@@ -6,14 +6,18 @@ use App\Map\Item\HasMenu;
 use App\Map\Item\ItemPrice;
 use App\Map\Item\TileItem;
 use App\Map\MapGame;
+use App\Map\Menu;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Tile;
 use Illuminate\View\View;
 
 final class TradingPost implements TileItem, HasMenu
 {
-    private bool $menuShown = false;
+    public ?Resource $input = null;
+
+    public ?Resource $output = null;
 
     public function getId(): string
     {
@@ -47,30 +51,40 @@ final class TradingPost implements TileItem, HasMenu
         return false;
     }
 
-    public function handleTicks(MapGame $game, Tile $tile, int $ticks): void {}
+    public function handleTicks(MapGame $game, Tile $tile, int $ticks): void
+    {
+        if (! $this->input || ! $this->output) {
+            return;
+        }
+
+        foreach (range(1, $ticks) as $tick) {
+            if ($game->{$this->input->getCountPropertyName()} >= 4) {
+                $game->{$this->input->getCountPropertyName()} -= 4;
+                $game->{$this->output->getCountPropertyName()} += 1;
+            }
+        }
+    }
 
     public function getModifier(): int
     {
         return 1;
     }
 
-    public function menuShown(): bool
+    public function getMenu(): Menu
     {
-        return $this->menuShown;
+        return new Menu(
+            hasMenu: $this,
+            viewPath: 'mapGame.tradingPostMenu',
+            form: [
+                'input' => $this->input,
+                'output' => $this->output,
+            ],
+        );
     }
 
-    public function toggleMenu(): void
+    public function saveMenu(array $form): void
     {
-        $this->menuShown = ! $this->menuShown;
-    }
-
-    public function saveMenu(): void
-    {
-        $this->menuShown = false;
-    }
-
-    public function getMenu(): View
-    {
-        return view('mapGame.tradingPostMenu');
+        $this->input = Resource::tryFrom($form['input']);
+        $this->output = Resource::tryFrom($form['output']);
     }
 }

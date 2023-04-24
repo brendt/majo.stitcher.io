@@ -1,4 +1,4 @@
-<div wire:poll>
+<div {{ ($game->paused ?? null) ? '' : 'wire:poll' }}>
     <style>
         :root {
             --tile-size: {{ 25 }}px;
@@ -99,7 +99,6 @@
         .tile-menu {
             position: absolute;
             margin-left: 30px;
-            margin-top: 0;
         }
 
         .menu-left {
@@ -121,7 +120,30 @@
         .item + .item {
             margin-top: 5px;
         }
+
+        .menu-window {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: #33333399;
+            z-index: 99;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        select {
+            color: #000;
+        }
     </style>
+
+    @if($game->menu ?? null)
+        <div class="menu-window">
+            <div class="menu tile-menu">
+                {{ $game->menu->render() }}
+            </div>
+        </div>
+    @endif
 
     <div class="game-window">
         <div class="menu menu-top flex justify-between py-2 px-2">
@@ -218,22 +240,17 @@
                             <br>
                             Noise: {{ $tile->noise ?? '?' }}
                             <br>
-{{--                            Neighbours:--}}
-{{--                            <ul>--}}
-{{--                                @foreach($game->getNeighbours($tile) as $neighbour)--}}
-{{--                                    <li class="ml-2">--}}
-{{--                                        {{ $neighbour::class }}--}}
-{{--                                    </li>--}}
-{{--                                @endforeach--}}
-{{--                            </ul>--}}
+                            {{--                            Neighbours:--}}
+                            {{--                            <ul>--}}
+                            {{--                                @foreach($game->getNeighbours($tile) as $neighbour)--}}
+                            {{--                                    <li class="ml-2">--}}
+                            {{--                                        {{ $neighbour::class }}--}}
+                            {{--                                    </li>--}}
+                            {{--                                @endforeach--}}
+                            {{--                            </ul>--}}
                         </div>
                     </div>
 
-                    @if($item instanceof \App\Map\Item\HasMenu && $item->menuShown())
-                        <div class="menu tile-menu">
-                            {{ $item->getMenu() }}
-                        </div>
-                    @endif
                 @endforeach
             @endforeach
         </div>
