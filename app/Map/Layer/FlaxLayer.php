@@ -5,7 +5,7 @@ namespace App\Map\Layer;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\LandTile;
-use App\Map\Tile\ResourceTile\old\FlaxTile;
+use App\Map\Tile\ResourceTile\FlaxTile;
 use App\Map\Tile\Tile;
 
 final readonly class FlaxLayer implements Layer

@@ -31,7 +31,7 @@ final class WoodFarmerXLTile extends BaseTile implements HasResource, HasBorder,
 
     public function handleTicks(MapGame $game, int $ticks): Action
     {
-        return (new UpdateResourceCount(woodCount: $ticks * 10));
+        return (new UpdateResourceCount(woodCount: $ticks * 3));
     }
 
     public function getColor(): string

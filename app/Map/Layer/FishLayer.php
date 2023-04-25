@@ -4,7 +4,7 @@ namespace App\Map\Layer;
 
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\WaterTile;
-use App\Map\Tile\ResourceTile\old\FishTile;
+use App\Map\Tile\ResourceTile\FishTile;
 use App\Map\Tile\Tile;
 
 final readonly class FishLayer implements Layer

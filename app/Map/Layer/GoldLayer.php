@@ -9,10 +9,10 @@ use App\Map\Biome\TundraBiome;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
-use App\Map\Tile\ResourceTile\old\GoldVeinTile;
+use App\Map\Tile\ResourceTile\GoldTile;
 use App\Map\Tile\Tile;
 
-final readonly class GoldVeinLayer implements Layer
+final readonly class GoldLayer implements Layer
 {
     public function __construct(
         private PerlinGenerator $generator,
@@ -27,7 +27,7 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile(
+            return new GoldTile(
                 x: $tile->x,
                 y: $tile->y,
                 temperature: $tile->temperature,
@@ -48,7 +48,7 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile(
+            return new GoldTile(
                 x: $tile->x,
                 y: $tile->y,
                 temperature: $tile->temperature,
@@ -68,7 +68,7 @@ final readonly class GoldVeinLayer implements Layer
                 return $tile;
             }
 
-            return new GoldVeinTile(
+            return new GoldTile(
                 x: $tile->x,
                 y: $tile->y,
                 temperature: $tile->temperature,

@@ -14,8 +14,10 @@ use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Upgradable;
 
-final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick
+final class FishFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick, Upgradable
 {
     public function __construct(
         public readonly int $x,
@@ -26,37 +28,37 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
         public readonly float $noise,
     ) {}
 
+    public function getResource(): Resource
+    {
+        return Resource::Fish;
+    }
+
     public function getColor(): string
     {
         $value = $this->noise;
 
-        while ($value > 0.8) {
-            $value -= 0.3;
+        while ($value < 0.6) {
+            $value += 0.1;
         }
 
         $hex = hex($value);
 
-        return "#{$hex}{$hex}{$hex}";
+        return "#0000{$hex}";
     }
 
     public function getBorderStyle(): BorderStyle
     {
-        return new BorderStyle('#333333', 6);
+        return new BorderStyle('#FFFFFF55', 4);
     }
 
     public function handleTicks(MapGame $game, int $ticks): Action
     {
-        return (new UpdateResourceCount(stoneCount: $ticks * 3));
-    }
-
-    public function getResource(): Resource
-    {
-        return Resource::Stone;
+        return (new UpdateResourceCount(fishCount: $ticks));
     }
 
     public function handleClick(MapGame $game): Action
     {
-        return new UpdateResourceCount(stoneCount: 1);
+        return new UpdateResourceCount(fishCount: 1);
     }
 
     public function getMenu(): Menu
@@ -70,5 +72,10 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
     public function getUpgradePrice(): Price
     {
         return new Price(wood: 1);
+    }
+
+    public function getUpgradeTile(): Tile
+    {
+        return new FishFarmerXLTile(...(array) $this);
     }
 }

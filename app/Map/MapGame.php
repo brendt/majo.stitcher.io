@@ -4,6 +4,9 @@ namespace App\Map;
 
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Item\HandHeldItem;
+use App\Map\Layer\FishLayer;
+use App\Map\Layer\FlaxLayer;
+use App\Map\Layer\GoldLayer;
 use App\Map\Layer\StoneLayer;
 use App\Map\Tile\HasMenu;
 use App\Map\Item\Item;
@@ -90,9 +93,9 @@ final class MapGame
             ->add(new LandLayer($generator))
             ->add(new WoodLayer($generator))
             ->add(new StoneLayer($generator))
-//            ->add(new FishLayer($generator))
-//            ->add(new GoldVeinLayer($generator))
-//            ->add(new FlaxLayer($generator))
+            ->add(new FishLayer($generator))
+            ->add(new GoldLayer($generator))
+            ->add(new FlaxLayer($generator))
             ->generate();
 
         return new self(

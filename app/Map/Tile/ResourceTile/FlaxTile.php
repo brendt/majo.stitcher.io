@@ -11,11 +11,12 @@ use App\Map\Price;
 use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
-use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Upgradable;
 
-final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick
+final class FlaxTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable
 {
     public function __construct(
         public readonly int $x,
@@ -26,37 +27,34 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
         public readonly float $noise,
     ) {}
 
+    public function getResource(): Resource
+    {
+        return Resource::Flax;
+    }
+
     public function getColor(): string
     {
         $value = $this->noise;
 
-        while ($value > 0.8) {
-            $value -= 0.3;
+        while ($value < 0.6) {
+            $value += 0.1;
         }
 
-        $hex = hex($value);
+        $r = hex($value / 2);
+        $g = hex($value);
+        $b = hex($value / 2);
 
-        return "#{$hex}{$hex}{$hex}";
+        return "#{$r}{$g}{$b}";
     }
 
     public function getBorderStyle(): BorderStyle
     {
-        return new BorderStyle('#333333', 6);
-    }
-
-    public function handleTicks(MapGame $game, int $ticks): Action
-    {
-        return (new UpdateResourceCount(stoneCount: $ticks * 3));
-    }
-
-    public function getResource(): Resource
-    {
-        return Resource::Stone;
+        return new BorderStyle('#FFFFFF66');
     }
 
     public function handleClick(MapGame $game): Action
     {
-        return new UpdateResourceCount(stoneCount: 1);
+        return new UpdateResourceCount(flaxCount: 1);
     }
 
     public function getMenu(): Menu
@@ -70,5 +68,10 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
     public function getUpgradePrice(): Price
     {
         return new Price(wood: 1);
+    }
+
+    public function getUpgradeTile(): Tile
+    {
+        return new FlaxFarmerTile(...(array) $this);
     }
 }

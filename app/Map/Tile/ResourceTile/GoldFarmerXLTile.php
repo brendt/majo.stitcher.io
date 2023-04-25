@@ -15,7 +15,7 @@ use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
 
-final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick
+final class GoldFarmerXLTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick
 {
     public function __construct(
         public readonly int $x,
@@ -41,22 +41,22 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
 
     public function getBorderStyle(): BorderStyle
     {
-        return new BorderStyle('#333333', 6);
+        return new BorderStyle('#FFEC53', 6);
     }
 
     public function handleTicks(MapGame $game, int $ticks): Action
     {
-        return (new UpdateResourceCount(stoneCount: $ticks * 3));
+        return (new UpdateResourceCount(goldCount: $ticks * 3));
     }
 
     public function getResource(): Resource
     {
-        return Resource::Stone;
+        return Resource::Gold;
     }
 
     public function handleClick(MapGame $game): Action
     {
-        return new UpdateResourceCount(stoneCount: 1);
+        return new UpdateResourceCount(goldCount: 1);
     }
 
     public function getMenu(): Menu
