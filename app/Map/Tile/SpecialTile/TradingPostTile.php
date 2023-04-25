@@ -48,8 +48,10 @@ final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, Hand
             hasMenu: $this,
             viewPath: 'menu.tradingPost',
             viewData: [
-                'input' => $this->input->value ?? null,
-                'output' => $this->output->value ?? null,
+                'form' => [
+                    'input' => $this->input->value ?? null,
+                    'output' => $this->output->value ?? null,
+                ],
                 'tile' => $this,
             ],
         );

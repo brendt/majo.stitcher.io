@@ -45,8 +45,10 @@ final class TradingPostXLTile extends BaseTile implements HasMenu, SavesMenu, Ha
             hasMenu: $this,
             viewPath: 'menu.tradingPost',
             viewData: [
-                'input' => $this->input->value ?? null,
-                'output' => $this->output->value ?? null,
+                'form' => [
+                    'input' => $this->input->value ?? null,
+                    'output' => $this->output->value ?? null,
+                ],
                 'tile' => $this,
             ],
         );
@@ -70,7 +72,7 @@ final class TradingPostXLTile extends BaseTile implements HasMenu, SavesMenu, Ha
 
         return new UpdateResourceCount(...[
             $this->input->getCountPropertyName() => -2 * $ticks,
-            $this->output->getCountPropertyName() => $ticks,
+            $this->output->getCountPropertyName() => 2 * $ticks,
         ]);
     }
 }

@@ -23,6 +23,7 @@ use App\Map\Tile\HasResource;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
 use App\Map\Tile\SpecialTile\TradingPostTile;
+use App\Map\Tile\SpecialTile\TradingPostXLTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Generator;
@@ -49,12 +50,12 @@ final class MapGame
         private array $tiles = [],
     ) {}
 
-    public static function resolve(?int $seed = null): self
+    public static function resolve(): self
     {
         if ($fromSession = Session::get('map')) {
             $game = unserialize($fromSession);
         } else {
-            $game = self::init($seed ?? time());
+            $game = self::init(time());
         }
 
         if (request()->query->has('cheat')) {
@@ -129,6 +130,10 @@ final class MapGame
 
     public function saveMenu(array $data): self
     {
+        if (! $this->menu) {
+            return $this;
+        }
+
         $hasMenu = $this->menu->hasMenu;
 
         if ($hasMenu instanceof SavesMenu) {
@@ -183,11 +188,11 @@ final class MapGame
 
             $tickAction = null;
 
-            if ($tile instanceof TradingPostTile) {
-                $tickAction = $tile->handleTicks($this, 1);
-            } elseif ($tile instanceof HasResource && $tile->getResource() === $resource) {
-                $tickAction = $tile->handleTicks($this, 1);
-            }
+            $tickAction = match (true) {
+                $tile instanceof TradingPostTile, $tile instanceof TradingPostXLTile => $tile->handleTicks($this, 1),
+                $tile instanceof HasResource && $tile->getResource() === $resource => $tile->handleTicks($this, 1),
+                default => null,
+            };
 
             if (! $tickAction instanceof UpdateResourceCount) {
                 continue;

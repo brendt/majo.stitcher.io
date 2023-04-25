@@ -10,19 +10,11 @@ class MapGameComponent extends Component
 {
     public int $seed;
 
-    public int $offsetX = 0;
-
-    public int $offsetY = 0;
-
-    public float $zoom = 1.0;
-
-    public array $form = [];
-
-    protected $listeners = ['handleKeypress', 'handleClick', 'handleMetaClick'];
+    protected $listeners = ['handleKeypress', 'handleClick', 'handleMetaClick', 'closeMenu'];
 
     public function render(): View
     {
-        $game = MapGame::resolve($this->seed)->persist();
+        $game = MapGame::resolve()->persist();
 
         return view('livewire.mapGameComponent', [
             'board' => $game
@@ -35,49 +27,40 @@ class MapGameComponent extends Component
 
     public function handleClick(int $x, int $y): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve()
             ->handleClick($x, $y)
             ->persist();
     }
 
     public function handleMetaClick(int $x, int $y): void
     {
-       MapGame::resolve($this->seed)
+       MapGame::resolve()
             ->showMenu($x, $y)
             ->persist();
     }
 
-    public function boot(): void
+    public function closeMenu(): void
     {
-        $game = MapGame::resolve();
-
-        if ($game->menu) {
-            $this->form = $game->menu->viewData;
-        } else {
-            $this->form = [];
-        }
-    }
-
-    public function saveMenu(): void
-    {
-        MapGame::resolve($this->seed)
-            ->saveMenu($this->form)
+        MapGame::resolve()
+            ->closeMenu()
             ->persist();
 
         $this->emit('update');
     }
 
-    public function closeMenu(): void
-    {
-        MapGame::resolve($this->seed)
-            ->closeMenu()
-            ->persist();
-    }
-
     public function resetGame(): void
     {
-        MapGame::resolve($this->seed)
+        MapGame::resolve()
             ->destroy();
+    }
+
+    public function upgradeTile(int $x, int $y): void
+    {
+        MapGame::resolve()
+            ->upgradeTile($x, $y)
+            ->persist();
+
+        $this->emit('update');
     }
 
     public function handleKeypress(string $key): void
@@ -86,14 +69,5 @@ class MapGameComponent extends Component
             'Escape' => $this->closeMenu(),
             default => null,
         };
-    }
-
-    public function upgradeTile(int $x, int $y): void
-    {
-        MapGame::resolve($this->seed)
-            ->upgradeTile($x, $y)
-            ->persist();
-
-        $this->emit('update');
     }
 }

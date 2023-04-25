@@ -7,6 +7,23 @@
 
     @vite('resources/css/app.css')
     @livewireStyles
+
+    <script>
+        function saveMenu(form) {
+            fetch(
+                '{{ action(\App\Http\Controllers\SaveMenuController::class) }}',
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({form: form}),
+                }
+            ).then(() => Livewire.emit('closeMenu'));
+        }
+    </script>
+
     <script src="https://unpkg.com/alpinejs" defer></script>
     <style>
         :root {

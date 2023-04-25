@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Map\MapGame;
 
-class MapController
+final class MapController
 {
     public function __invoke(?int $seed = null)
     {
-        $game = MapGame::resolve($seed);
+        $game = MapGame::resolve();
 
         return view('map', [
             'seed' => $seed ?? time(),

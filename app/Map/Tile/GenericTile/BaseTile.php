@@ -114,7 +114,7 @@ class BaseTile implements Tile
             'y' => $this->y,
             'style' => (array) $this->getStyle($game),
             'name' => $this::class,
-            'biome' => $this->getBiome()::class,
+            'biome' => $this->getBiome() ? $this->getBiome()::class : null,
             'elevation' => $this->elevation,
             'temperature' => $this->temperature,
         ];

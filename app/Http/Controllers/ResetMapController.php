@@ -10,6 +10,8 @@ class ResetMapController
     {
         MapGame::resolve()->destroy();
 
+        MapGame::init(time())->persist();
+
         return redirect()->action(MapController::class);
     }
 }
