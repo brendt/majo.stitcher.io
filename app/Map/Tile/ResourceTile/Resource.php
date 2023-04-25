@@ -20,4 +20,16 @@ enum Resource: string
             self::Wood => 'woodCount',
         };
     }
+
+    public function getBaseColor(): string
+    {
+        return match ($this) {
+            self::Fish => 'blue',
+            self::Flax => 'white',
+            self::Stone => 'gray',
+            self::Gold => 'gold',
+            self::Wood => 'brown',
+        };
+    }
+
 }

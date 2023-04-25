@@ -3,10 +3,13 @@
 namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
+use App\Map\MapGame;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
+use App\Map\Tile\HasMenu;
 use App\Map\Tile\Style;
 use App\Map\Tile\Tile;
+use App\Map\Tile\Upgradable;
 use Spatie\Cloneable\Cloneable;
 
 class BaseTile implements Tile
@@ -26,12 +29,30 @@ class BaseTile implements Tile
         return '#fff';
     }
 
-    public function getStyle(): Style
+    public function isClickable(MapGame $game): bool
+    {
+        if ($this instanceof HandlesClick) {
+            return true;
+        }
+
+        if ($this instanceof Upgradable) {
+            return $this->canUpgrade($game);
+        }
+
+        if ($this instanceof HasMenu) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getStyle(MapGame $game): Style
     {
         $backgroundColor = $this->getColor();
         $borderStyle = $this instanceof HasBorder ? $this->getBorderStyle() : null;
         $borderWidth = $borderStyle->width ?? 0;
         $borderColor = $borderStyle->color ?? '';
+        $clickable = $this->isClickable($game);
 
         return new Style(
             style: <<<EOF
@@ -44,7 +65,7 @@ class BaseTile implements Tile
                 ' ',
                 [
                     $this instanceof HasBorder ? 'tile-border' : '',
-                    $this instanceof HandlesClick ? 'clickable' : 'unclickable',
+                    $clickable ? 'clickable' : 'unclickable',
                 ],
             )
         );
@@ -86,12 +107,12 @@ class BaseTile implements Tile
         return $this->y;
     }
 
-    public function toArray(): array
+    public function toArray(MapGame $game): array
     {
         return [
             'x' => $this->x,
             'y' => $this->y,
-            'style' => (array) $this->getStyle(),
+            'style' => (array) $this->getStyle($game),
             'name' => $this::class,
             'biome' => $this->getBiome()::class,
             'elevation' => $this->elevation,

@@ -60,8 +60,11 @@ final class FlaxTile extends BaseTile implements HasResource, HasBorder, Handles
     public function getMenu(): Menu
     {
         return new Menu(
-            'menu.upgrade',
-            ['tile' => $this],
+            hasMenu: $this,
+            viewPath: 'menu.upgrade',
+            viewData: [
+                'tile' => $this,
+            ],
         );
     }
 
@@ -73,5 +76,10 @@ final class FlaxTile extends BaseTile implements HasResource, HasBorder, Handles
     public function getUpgradeTile(): Tile
     {
         return new FlaxFarmerTile(...(array) $this);
+    }
+
+    public function canUpgrade(MapGame $game): bool
+    {
+        return true;
     }
 }

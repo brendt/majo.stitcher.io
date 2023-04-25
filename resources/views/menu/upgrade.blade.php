@@ -10,7 +10,7 @@
     </button>
 
     @if($tile instanceof \App\Map\Tile\Upgradable)
-        @if($game->canPay($tile->getUpgradePrice()))
+        @if($game->canPay($tile->getUpgradePrice()) && $tile->canUpgrade($game))
             <div>
                 <button wire:click="upgradeTile({{ $tile->x }}, {{ $tile->y }})">
                     {{ $tile->getUpgradeTile()::class }}

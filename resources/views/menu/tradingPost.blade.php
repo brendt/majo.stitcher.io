@@ -2,6 +2,7 @@
     <div class="flex justify-between my-2">
         <span class="mx-2">Selling 4 </span>
         <select name="trader-input" wire:model="form.input">
+            <option value=""></option>
             @foreach(\App\Map\Tile\ResourceTile\Resource::cases() as $resource)
                 <option value="{{ $resource->value }}">
                     {{ $resource->name }}
@@ -13,6 +14,7 @@
     <div class="flex justify-between my-2">
         <span class="mx-2">For 1</span>
         <select name="trader-output" wire:model="form.output">
+            <option value=""></option>
             @foreach(\App\Map\Tile\ResourceTile\Resource::cases() as $resource)
                 <option value="{{ $resource->value }}">
                     {{ $resource->name }}
@@ -24,5 +26,25 @@
     <div class="my-2 flex justify-end">
         <button class="mx-2" wire:click="closeMenu()">Close</button>
         <button class="mx-2" wire:click="saveMenu()">Save</button>
+    </div>
+
+    <div>
+        @if($tile instanceof \App\Map\Tile\Upgradable)
+            @if($game->canPay($tile->getUpgradePrice()) && $tile->canUpgrade($game))
+                <div>
+                    <button wire:click="upgradeTile({{ $tile->x }}, {{ $tile->y }})">
+                        {{ $tile->getUpgradeTile()::class }}
+                        <br>
+                        {{ $tile->getUpgradePrice() }}
+                    </button>
+                </div>
+            @else
+                <div class="bg-red-500">
+                    {{ $tile->getUpgradeTile()::class }}
+                    <br>
+                    {{ $tile->getUpgradePrice() }}
+                </div>
+            @endif
+        @endif
     </div>
 </div>

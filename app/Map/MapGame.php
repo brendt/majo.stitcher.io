@@ -21,6 +21,8 @@ use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasResource;
 use App\Map\Tile\ResourceTile\Resource;
+use App\Map\Tile\SavesMenu;
+use App\Map\Tile\SpecialTile\TradingPostTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Generator;
@@ -52,7 +54,7 @@ final class MapGame
         if ($fromSession = Session::get('map')) {
             $game = unserialize($fromSession);
         } else {
-            $game = self::init($seed ?? 1);
+            $game = self::init($seed ?? time());
         }
 
         if (request()->query->has('cheat')) {
@@ -111,6 +113,7 @@ final class MapGame
 
         if ($tile instanceof HasMenu) {
             $this->menu = $tile->getMenu();
+            $this->paused = true;
         }
 
         return $this;
@@ -119,13 +122,19 @@ final class MapGame
     public function closeMenu(): self
     {
         $this->menu = null;
+        $this->paused = false;
 
         return $this;
     }
 
     public function saveMenu(array $data): self
     {
-        // TODO
+        $hasMenu = $this->menu->hasMenu;
+
+        if ($hasMenu instanceof SavesMenu) {
+            $hasMenu->saveMenu($data);
+        }
+
         $this->closeMenu();
 
         return $this;
@@ -168,19 +177,17 @@ final class MapGame
         $count = 0;
 
         foreach ($this->loopOwnTiles() as $tile) {
-            if (! $tile instanceof HasResource) {
-                continue;
-            }
-
-            if ($tile->getResource() !== $resource) {
-                continue;
-            }
-
             if (! $tile instanceof HandlesTicks) {
                 continue;
             }
 
-            $tickAction = $tile->handleTicks($this, 1);
+            $tickAction = null;
+
+            if ($tile instanceof TradingPostTile) {
+                $tickAction = $tile->handleTicks($this, 1);
+            } elseif ($tile instanceof HasResource && $tile->getResource() === $resource) {
+                $tickAction = $tile->handleTicks($this, 1);
+            }
 
             if (! $tickAction instanceof UpdateResourceCount) {
                 continue;

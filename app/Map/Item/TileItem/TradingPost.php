@@ -72,14 +72,6 @@ final class TradingPost implements TileItem, HasMenu
 
     public function getMenu(): Menu
     {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'mapGame.tradingPostMenu',
-            form: [
-                'input' => $this->input,
-                'output' => $this->output,
-            ],
-        );
     }
 
     public function saveMenu(array $form): void

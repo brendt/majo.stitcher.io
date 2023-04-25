@@ -3,6 +3,7 @@
 namespace App\Map\Tile;
 
 use App\Map\Biome\Biome;
+use App\Map\MapGame;
 
 interface Tile
 {
@@ -10,9 +11,9 @@ interface Tile
 
     public function getY(): int;
 
-    public function getStyle(): Style;
+    public function getStyle(MapGame $game): Style;
 
     public function getBiome(): ?Biome;
 
-    public function toArray(): array;
+    public function toArray(MapGame $game): array;
 }

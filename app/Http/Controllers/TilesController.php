@@ -14,7 +14,7 @@ class TilesController
         return [
             'tiles' => collect($game->getOwnTiles())
                 ->flatten()
-                ->map(fn (Tile $tile) => $tile->toArray())
+                ->map(fn (Tile $tile) => $tile->toArray($game))
                 ->toArray(),
         ];
     }

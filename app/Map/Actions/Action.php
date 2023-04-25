@@ -6,5 +6,5 @@ use App\Map\MapGame;
 
 interface Action
 {
-    public function __invoke(MapGame $game);
+    public function __invoke(MapGame $game): void;
 }

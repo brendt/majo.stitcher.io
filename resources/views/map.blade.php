@@ -189,11 +189,11 @@
     @foreach ($game->loop() as $tile)
         <div class="
                     tile
-                    {!! $tile->getStyle()->class !!}
+                    {!! $tile->getStyle($game)->class !!}
                 "
              style="
                     grid-area: {{ $tile->y }} / {{ $tile->x }} / {{ $tile->y }} / {{ $tile->x }};
-                    {!! $tile->getStyle()->style !!}
+                    {!! $tile->getStyle($game)->style !!}
                 "
              x-on:click="
                     window.metaDown

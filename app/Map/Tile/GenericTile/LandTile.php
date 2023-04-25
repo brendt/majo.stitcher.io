@@ -3,9 +3,14 @@
 namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
-use App\Map\Item\TileItem;
+use App\Map\MapGame;
+use App\Map\Menu;
+use App\Map\Price;
+use App\Map\Tile\SpecialTile\TradingPostTile;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Upgradable;
 
-final class LandTile extends BaseTile
+final class LandTile extends BaseTile implements Upgradable
 {
     public function __construct(
         public readonly int $x,
@@ -13,7 +18,6 @@ final class LandTile extends BaseTile
         public readonly ?float $temperature,
         public readonly ?float $elevation,
         public readonly ?Biome $biome,
-        public ?TileItem $item = null,
     ) {}
 
     public static function fromBase(BaseTile $tile): self
@@ -26,12 +30,33 @@ final class LandTile extends BaseTile
         return $this->getBiome()->getGrassColor($this);
     }
 
-    public function getBorderColor(): string
+    public function getMenu(): Menu
     {
-        if ($this->item) {
-            return 'red';
+        return new Menu(
+            hasMenu: $this,
+            viewPath: 'menu.upgrade',
+            viewData: ['tile' => $this],
+        );
+    }
+
+    public function getUpgradePrice(): Price
+    {
+        return new Price(wood: 1);
+    }
+
+    public function getUpgradeTile(): Tile
+    {
+        return new TradingPostTile(...(array) $this);
+    }
+
+    public function canUpgrade(MapGame $game): bool
+    {
+        foreach ($game->getNeighbours($this) as $neighbour) {
+            if ($neighbour instanceof WaterTile) {
+                return true;
+            }
         }
 
-        return '';
+        return false;
     }
 }

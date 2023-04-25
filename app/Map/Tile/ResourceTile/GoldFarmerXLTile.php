@@ -59,14 +59,6 @@ final class GoldFarmerXLTile extends BaseTile implements HasResource, HasBorder,
         return new UpdateResourceCount(goldCount: 1);
     }
 
-    public function getMenu(): Menu
-    {
-        return new Menu(
-            'menu.upgrade',
-            ['tile' => $this],
-        );
-    }
-
     public function getUpgradePrice(): Price
     {
         return new Price(wood: 1);

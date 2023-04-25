@@ -1,4 +1,4 @@
-<div wire:poll>
+<div {{ $game->paused ? '' : 'wire:poll' }}>
     @if($game->menu ?? null)
         <div class="menu-window">
             <div class="menu tile-menu">
@@ -47,7 +47,7 @@
             @endif
             <span class="mx-2">Last update: {{ $game->gameTime }}</span>
             <span class="mx-2">Seed: <a class="underline hover:no-underline" href="/map/{{ $game->seed }}">{{ $game->seed }}</a></span>
-            <span class="mx-2"><button class="underline hover:no-underline" wire:click="resetGame">Reset</button></span>
+            <span class="mx-2"><a class="underline hover:no-underline" href="{{ action(\App\Http\Controllers\ResetMapController::class) }}">Reset</a></span>
         </div>
     </div>
 </div>

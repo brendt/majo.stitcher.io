@@ -42,8 +42,35 @@ class MapGameComponent extends Component
 
     public function handleMetaClick(int $x, int $y): void
     {
-        MapGame::resolve($this->seed)
+       MapGame::resolve($this->seed)
             ->showMenu($x, $y)
+            ->persist();
+    }
+
+    public function boot(): void
+    {
+        $game = MapGame::resolve();
+
+        if ($game->menu) {
+            $this->form = $game->menu->viewData;
+        } else {
+            $this->form = [];
+        }
+    }
+
+    public function saveMenu(): void
+    {
+        MapGame::resolve($this->seed)
+            ->saveMenu($this->form)
+            ->persist();
+
+        $this->emit('update');
+    }
+
+    public function closeMenu(): void
+    {
+        MapGame::resolve($this->seed)
+            ->closeMenu()
             ->persist();
     }
 
@@ -53,30 +80,10 @@ class MapGameComponent extends Component
             ->destroy();
     }
 
-    public function buyHandHeldItem(string $itemId): void
-    {
-        MapGame::resolve($this->seed)
-            ->buyHandHeldItem($itemId)
-            ->persist();
-    }
-
-    public function selectItem(string $itemId): void
-    {
-        MapGame::resolve($this->seed)
-            ->selectItem($itemId)
-            ->persist();
-    }
-
     public function handleKeypress(string $key): void
     {
         match ($key) {
             'Escape' => $this->closeMenu(),
-            'ArrowUp', 'w' => $this->handleUp(),
-            'ArrowDown', 's' => $this->handleDown(),
-            'ArrowLeft', 'a' => $this->handleLeft(),
-            'ArrowRight', 'd' => $this->handleRight(),
-            '+', '=' => $this->zoomIn(),
-            '-', '_' => $this->zoomOut(),
             default => null,
         };
     }
@@ -88,73 +95,5 @@ class MapGameComponent extends Component
             ->persist();
 
         $this->emit('update');
-    }
-
-    public function saveMenu(): void
-    {
-        MapGame::resolve($this->seed)
-            ->saveMenu($this->form)
-            ->persist();
-    }
-
-    public function closeMenu(): void
-    {
-        MapGame::resolve($this->seed)
-            ->closeMenu()
-            ->persist();
-    }
-
-    public function handleUp(): void
-    {
-        if ($this->offsetY <= -100) {
-            return;
-        }
-
-        $this->offsetY -= 10;
-    }
-
-    public function handleDown(): void
-    {
-        if ($this->offsetY >= 100) {
-            return;
-        }
-
-        $this->offsetY += 10;
-    }
-
-    public function handleLeft(): void
-    {
-        if ($this->offsetX <= -100) {
-            return;
-        }
-
-        $this->offsetX -= 10;
-    }
-
-    public function handleRight(): void
-    {
-        if ($this->offsetX >= 100) {
-            return;
-        }
-
-        $this->offsetX += 10;
-    }
-
-    private function zoomIn(): void
-    {
-        if ($this->zoom >= 3.0) {
-            return;
-        }
-
-        $this->zoom += 0.5;
-    }
-
-    private function zoomOut(): void
-    {
-        if ($this->zoom <= 1.0) {
-            return;
-        }
-
-        $this->zoom -= 0.5;
     }
 }

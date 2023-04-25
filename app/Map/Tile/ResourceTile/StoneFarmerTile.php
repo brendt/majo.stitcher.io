@@ -64,8 +64,11 @@ final class StoneFarmerTile extends BaseTile implements HasResource, HasBorder, 
     public function getMenu(): Menu
     {
         return new Menu(
-            'menu.upgrade',
-            ['tile' => $this],
+            hasMenu: $this,
+            viewPath: 'menu.upgrade',
+            viewData: [
+                'tile' => $this,
+            ],
         );
     }
 
@@ -77,5 +80,10 @@ final class StoneFarmerTile extends BaseTile implements HasResource, HasBorder, 
     public function getUpgradeTile(): Tile
     {
         return new StoneFarmerXLTile(...(array) $this);
+    }
+
+    public function canUpgrade(MapGame $game): bool
+    {
+        return true;
     }
 }

@@ -6,7 +6,6 @@ use App\Map\Actions\Action;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
-use App\Map\Menu;
 use App\Map\Price;
 use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
@@ -57,14 +56,6 @@ final class FishFarmerXLTile extends BaseTile implements HasResource, HasBorder,
     public function handleClick(MapGame $game): Action
     {
         return new UpdateResourceCount(fishCount: 1);
-    }
-
-    public function getMenu(): Menu
-    {
-        return new Menu(
-            'menu.upgrade',
-            ['tile' => $this],
-        );
     }
 
     public function getUpgradePrice(): Price
