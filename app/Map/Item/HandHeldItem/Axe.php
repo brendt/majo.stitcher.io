@@ -3,9 +3,9 @@
 namespace App\Map\Item\HandHeldItem;
 
 use App\Map\Item\HandHeldItem;
-use App\Map\Item\ItemPrice;
+use App\Map\Price;
 use App\Map\MapGame;
-use App\Map\Tile\ResourceTile\TreeTile;
+use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
 
 final class Axe implements HandHeldItem
@@ -20,9 +20,9 @@ final class Axe implements HandHeldItem
         return 'Axe';
     }
 
-    public function getPrice(): ItemPrice
+    public function getPrice(): Price
     {
-        return new ItemPrice(
+        return new Price(
             wood: 20,
             stone: 20,
         );
@@ -30,7 +30,7 @@ final class Axe implements HandHeldItem
 
     public function canInteract(MapGame $game, Tile $tile): bool
     {
-        return $tile instanceof TreeTile;
+        return $tile instanceof WoodTile;
     }
 
     public function getModifier(): int

@@ -3,9 +3,9 @@
 namespace App\Map\Item\HandHeldItem;
 
 use App\Map\Item\HandHeldItem;
-use App\Map\Item\ItemPrice;
 use App\Map\MapGame;
-use App\Map\Tile\ResourceTile\FlaxTile;
+use App\Map\Price;
+use App\Map\Tile\ResourceTile\old\FlaxTile;
 use App\Map\Tile\Tile;
 
 final class Shears implements HandHeldItem
@@ -20,9 +20,9 @@ final class Shears implements HandHeldItem
         return 'Shears';
     }
 
-    public function getPrice(): ItemPrice
+    public function getPrice(): Price
     {
-        return new ItemPrice(
+        return new Price(
             wood: 20,
             stone: 20,
         );

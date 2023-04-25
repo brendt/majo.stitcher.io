@@ -2,19 +2,20 @@
 
 namespace App\Map;
 
-use App\Map\Item\HasMenu;
 use Illuminate\View\View;
 
-final class Menu
+final readonly class Menu
 {
     public function __construct(
-        public HasMenu $hasMenu,
         public string $viewPath,
-        public array $form = [],
+        public array $viewData,
     ) {}
 
-    public function render(): View
+    public function render(MapGame $game): View
     {
-        return view($this->viewPath);
+        return view(
+            $this->viewPath,
+            ['game' => $game, ...$this->viewData],
+        );
     }
 }

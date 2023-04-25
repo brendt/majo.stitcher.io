@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\ResourceTile\old;
 
 use App\Map\Biome\Biome;
 use App\Map\Item\TileItem;
-use App\Map\MapGame;
 use App\Map\Tile\ClickableResourceTile;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\ResourceTile;
+use App\Map\Tile\HasResource;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\TickableTile;
 
-final class GoldVeinTile extends BaseTile implements ResourceTile
+final class FishTile extends BaseTile implements HasResource
 {
     use ClickableResourceTile;
     use TickableTile;
@@ -27,22 +27,25 @@ final class GoldVeinTile extends BaseTile implements ResourceTile
 
     public function getColor(): string
     {
-        return '#777';
+        $value = $this->noise;
+
+        while ($value < 0.6) {
+            $value += 0.1;
+        }
+
+        $hex = hex($value);
+
+        return "#0000{$hex}";
     }
 
     public function getBorderColor(): string
     {
-        return '#FFEC53';
-    }
-
-    public function handleTicks(MapGame $game, int $ticks): void
-    {
-        $this->item?->handleTicks($game, $this, $ticks);
+        return '#FFFFFF55';
     }
 
     public function getResource(): Resource
     {
-        return Resource::Gold;
+        return Resource::Fish;
     }
 
     public function getItem(): ?TileItem

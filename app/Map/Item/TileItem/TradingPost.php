@@ -2,8 +2,8 @@
 
 namespace App\Map\Item\TileItem;
 
-use App\Map\Item\HasMenu;
-use App\Map\Item\ItemPrice;
+use App\Map\Tile\HasMenu;
+use App\Map\Price;
 use App\Map\Item\TileItem;
 use App\Map\MapGame;
 use App\Map\Menu;
@@ -29,9 +29,9 @@ final class TradingPost implements TileItem, HasMenu
         return 'Trading Post';
     }
 
-    public function getPrice(): ItemPrice
+    public function getPrice(): Price
     {
-        return new ItemPrice();
+        return new Price();
     }
 
     public function canInteract(MapGame $game, Tile $tile): bool

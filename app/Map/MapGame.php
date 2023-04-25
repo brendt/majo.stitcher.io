@@ -2,37 +2,25 @@
 
 namespace App\Map;
 
-use App\Http\Livewire\Map;
-use App\Map\Item\HandHeldItem\Axe;
-use App\Map\Item\HandHeldItem\FishingNet;
+use App\Map\Actions\UpdateResourceCount;
 use App\Map\Item\HandHeldItem;
-use App\Map\Item\HasMenu;
+use App\Map\Layer\StoneLayer;
+use App\Map\Tile\HasMenu;
 use App\Map\Item\Item;
-use App\Map\Item\HandHeldItem\Pickaxe;
-use App\Map\Item\HandHeldItem\Shears;
-use App\Map\Item\TileItem\FishFarmer;
-use App\Map\Item\TileItem\FlaxFarmer;
-use App\Map\Item\TileItem\GoldVeinFarmer;
-use App\Map\Item\TileItem\TradingPost;
-use App\Map\Item\TileItem\TreeFarmer;
-use App\Map\Item\TileItem\StoneVeinFarmer;
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
 use App\Map\Layer\ElevationLayer;
-use App\Map\Layer\FishLayer;
-use App\Map\Layer\FlaxLayer;
-use App\Map\Layer\GoldVeinLayer;
 use App\Map\Layer\LandLayer;
-use App\Map\Layer\StoneVeinLayer;
 use App\Map\Layer\TemperatureLayer;
-use App\Map\Layer\TreeLayer;
+use App\Map\Layer\WoodLayer;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
-use App\Map\Tile\ResourceTile;
+use App\Map\Tile\HasResource;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Tile;
-use Illuminate\Support\Collection;
+use App\Map\Tile\Upgradable;
+use Generator;
 use Illuminate\Support\Facades\Session;
 
 /**
@@ -53,17 +41,16 @@ final class MapGame
         public array $handHeldItems = [],
         public bool $paused = false,
         public ?Menu $menu = null,
+        private array $tiles = [],
     ) {}
 
-    public static function resolve(Map $component, ?int $seed = null): self
+    public static function resolve(?int $seed = null): self
     {
         if ($fromSession = Session::get('map')) {
             $game = unserialize($fromSession);
         } else {
             $game = self::init($seed ?? 1);
         }
-
-        $game->setComponent($component);
 
         if (request()->query->has('cheat')) {
             foreach (Resource::cases() as $case) {
@@ -76,11 +63,6 @@ final class MapGame
         }
 
         return $game;
-    }
-
-    private function setComponent(Map $component): void
-    {
-        $this->component = $component;
     }
 
     public function persist(): self
@@ -106,11 +88,11 @@ final class MapGame
             ->add(new ElevationLayer($generator))
             ->add(new BiomeLayer())
             ->add(new LandLayer($generator))
-            ->add(new TreeLayer($generator))
-            ->add(new FishLayer($generator))
-            ->add(new GoldVeinLayer($generator))
-            ->add(new StoneVeinLayer($generator))
-            ->add(new FlaxLayer($generator))
+            ->add(new WoodLayer($generator))
+            ->add(new StoneLayer($generator))
+//            ->add(new FishLayer($generator))
+//            ->add(new GoldVeinLayer($generator))
+//            ->add(new FlaxLayer($generator))
             ->generate();
 
         return new self(
@@ -120,65 +102,41 @@ final class MapGame
         );
     }
 
-    public function handleClick($x, $y): self
+    public function showMenu(int $x, int $y): self
     {
-        $tile = $this->baseLayer->get($x, $y);
+        $tile = $this->getTile($x, $y);
 
-        if ($tile instanceof HandlesClick && $tile->canClick($this)) {
-            $tile->handleClick($this);
+        if ($tile instanceof HasMenu) {
+            $this->menu = $tile->getMenu();
         }
 
         return $this;
     }
 
-    public function selectItem(string $itemId): self
+    public function closeMenu(): self
     {
-        $item = $this->getAvailableItems()[$itemId] ?? null;
-
-        if (! $item) {
-            return $this;
-        }
-
-        $this->selectedItem = $item;
+        $this->menu = null;
 
         return $this;
     }
 
-    public function buyHandHeldItem(string $itemId): self
+    public function saveMenu(array $data): self
     {
-        $item = $this->getAvailableItems()[$itemId] ?? null;
-
-        if (! $item instanceof HandHeldItem) {
-            return $this;
-        }
-
-        $this->buyItem($item);
+        // TODO
+        $this->closeMenu();
 
         return $this;
     }
 
-    public function buyItem(Item $item): self
+    public function handleClick(int $x, int $y): self
     {
-        $itemPrice = $item->getPrice();
+        $tile = $this->getTile($x, $y);
 
-        $this->woodCount -= $itemPrice->wood;
-        $this->goldCount -= $itemPrice->gold;
-        $this->stoneCount -= $itemPrice->stone;
-        $this->flaxCount -= $itemPrice->flax;
-        $this->fishCount -= $itemPrice->fish;
+        if ($tile instanceof HandlesClick) {
+            $action = $tile->handleClick($this);
 
-        if ($item instanceof HandHeldItem) {
-            $this->handHeldItems[$item->getId()] = $item;
+            $action($this);
         }
-
-        $this->unselectItem();
-
-        return $this;
-    }
-
-    public function unselectItem(): self
-    {
-        $this->selectedItem = null;
 
         return $this;
     }
@@ -191,80 +149,23 @@ final class MapGame
 
         $difference = $newTime - $oldTime;
 
-        foreach ($this->baseLayer->loop() as $tile) {
+        foreach ($this->loop() as $tile) {
             if ($tile instanceof HandlesTicks) {
-                $tile->handleTicks($this, $difference);
+                $action = $tile->handleTicks($this, $difference);
+
+                $action($this);
             }
         }
 
         $this->gameTime = $newTime;
     }
 
-    public function canBuy(Item $item): bool
-    {
-        $itemPrice = $item->getPrice();
-
-        return
-            $itemPrice->wood <= $this->woodCount
-            && $itemPrice->gold <= $this->goldCount
-            && $itemPrice->stone <= $this->stoneCount
-            && $itemPrice->flax <= $this->flaxCount
-            && $itemPrice->fish <= $this->fishCount;
-    }
-
-    /**
-     * @return Item[]|Collection
-     */
-    public function getAvailableItems(): Collection
-    {
-        $handHeldItems = collect([
-            new Pickaxe(),
-            new Axe(),
-            new FishingNet(),
-            new Shears(),
-        ])
-            ->reject(fn (HandHeldItem $item) => isset($this->handHeldItems[$item->getId()]));
-
-        $tileItems = [
-            new TreeFarmer(),
-            new StoneVeinFarmer(),
-            new GoldVeinFarmer(),
-            new FlaxFarmer(),
-            new FishFarmer(),
-            new TradingPost(),
-        ];
-
-        return $handHeldItems
-            ->merge($tileItems)
-            ->mapWithKeys(fn (Item $item) => [$item->getId() => $item]);
-    }
-
-    public function getHandHeldItemForTile(Tile $tile): ?HandHeldItem
-    {
-        foreach ($this->handHeldItems as $item) {
-            if ($item->canInteract($tile)) {
-                return $item;
-            }
-        }
-
-        return null;
-    }
-
-    public function incrementResource(Resource $resource, int $amount): self
-    {
-        $property = $resource->getCountPropertyName();
-
-        $this->{$property} += $amount;
-
-        return $this;
-    }
-
     public function resourcePerTick(Resource $resource): int
     {
         $count = 0;
 
-        foreach ($this->baseLayer->loop() as $tile) {
-            if (! $tile instanceof ResourceTile) {
+        foreach ($this->loopOwnTiles() as $tile) {
+            if (! $tile instanceof HasResource) {
                 continue;
             }
 
@@ -272,7 +173,17 @@ final class MapGame
                 continue;
             }
 
-            $count += $tile->getItem()?->getModifier() ?? 0;
+            if (! $tile instanceof HandlesTicks) {
+                continue;
+            }
+
+            $tickAction = $tile->handleTicks($this, 1);
+
+            if (! $tickAction instanceof UpdateResourceCount) {
+                continue;
+            }
+
+            $count += $tickAction->{$resource->getCountPropertyName()};
         }
 
         return $count;
@@ -284,33 +195,82 @@ final class MapGame
     public function getNeighbours(Tile $tile): array
     {
         return array_filter([
-            $this->baseLayer->get($tile->getX() - 1, $tile->getY()),
-            $this->baseLayer->get($tile->getX() + 1, $tile->getY()),
-            $this->baseLayer->get($tile->getX(), $tile->getY() - 1),
-            $this->baseLayer->get($tile->getX(), $tile->getY() + 1),
+            $this->getTile($tile->getX() - 1, $tile->getY()),
+            $this->getTile($tile->getX() + 1, $tile->getY()),
+            $this->getTile($tile->getX(), $tile->getY() - 1),
+            $this->getTile($tile->getX(), $tile->getY() + 1),
         ]);
     }
 
-    public function openMenu(HasMenu $hasMenu): void
+    public function getTile(int $x, int $y): ?Tile
     {
-        $this->paused = true;
-        $this->menu = $hasMenu->getMenu();
-        $this->component->form = $this->menu->form;
+        return $this->tiles[$x][$y] ?? $this->baseLayer->get($x, $y);
     }
 
-    public function closeMenu(): self
+    public function upgradeTile(int $x, int $y): self
     {
-        $this->paused = false;
-        $this->menu = null;
+        $tile = $this->getTile($x, $y);
 
-        return $this;
-    }
+        if (! $tile instanceof Upgradable) {
+            return $this;
+        }
 
-    public function saveMenu(array $form): self
-    {
-        $this->menu->hasMenu->saveMenu($form);
+        $price = $tile->getUpgradePrice();
+
+        if (! $this->canPay($price)) {
+            return $this;
+        }
+
+        $upgradeTile = $tile->getUpgradeTile();
+
+        $this->pay($price);
+        $this->setTile($tile->x, $tile->y, $upgradeTile);
         $this->closeMenu();
 
         return $this;
+    }
+
+    public function canPay(Price $price): bool
+    {
+        return $this->woodCount >= $price->wood
+            && $this->goldCount >= $price->gold
+            && $this->stoneCount >= $price->stone
+            && $this->flaxCount >= $price->flax
+            && $this->fishCount >= $price->fish;
+    }
+
+    public function pay(Price $price): void
+    {
+        $this->woodCount -= $price->wood;
+        $this->goldCount -= $price->gold;
+        $this->stoneCount -= $price->stone;
+        $this->flaxCount -= $price->flax;
+        $this->fishCount -= $price->fish;
+    }
+
+    private function setTile(int $x, int $y, Tile $newTile): void
+    {
+        $this->tiles[$x][$y] = $newTile;
+    }
+
+    public function loop(): Generator
+    {
+        foreach ($this->baseLayer->loop() as $tile) {
+            yield $this->tiles[$tile->x][$tile->y] ?? $tile;
+        }
+    }
+
+    public function getOwnTiles(): array
+    {
+        return $this->tiles;
+    }
+
+    private function loopOwnTiles(): Generator
+    {
+        foreach ($this->tiles as $row) {
+            foreach ($row as $tile) {
+                yield $tile;
+            }
+        }
     }
 }

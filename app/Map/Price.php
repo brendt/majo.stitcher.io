@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Map\Item;
+namespace App\Map;
 
-final class ItemPrice
+final class Price
 {
     public function __construct(
         public int $wood = 0,

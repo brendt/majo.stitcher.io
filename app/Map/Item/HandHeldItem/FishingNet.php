@@ -3,9 +3,9 @@
 namespace App\Map\Item\HandHeldItem;
 
 use App\Map\Item\HandHeldItem;
-use App\Map\Item\ItemPrice;
 use App\Map\MapGame;
-use App\Map\Tile\ResourceTile\FishTile;
+use App\Map\Price;
+use App\Map\Tile\ResourceTile\old\FishTile;
 use App\Map\Tile\Tile;
 
 final class FishingNet implements HandHeldItem
@@ -20,9 +20,9 @@ final class FishingNet implements HandHeldItem
         return 'Fishing Net';
     }
 
-    public function getPrice(): ItemPrice
+    public function getPrice(): Price
     {
-        return new ItemPrice(
+        return new Price(
             wood: 20,
             flax: 20,
         );

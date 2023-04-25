@@ -4,5 +4,5 @@ namespace App\Map\Tile;
 
 interface HasBorder
 {
-    public function getBorderColor(): string;
+    public function getBorderStyle(): BorderStyle;
 }

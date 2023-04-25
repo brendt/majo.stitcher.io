@@ -2,19 +2,19 @@
 
 namespace App\Map\Tile\ResourceTile;
 
+use App\Map\Actions\Action;
+use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
-use App\Map\Item\TileItem;
 use App\Map\MapGame;
-use App\Map\Tile\ClickableResourceTile;
+use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\ResourceTile;
-use App\Map\Tile\TickableTile;
+use App\Map\Tile\HandlesClick;
+use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\HasBorder;
+use App\Map\Tile\HasResource;
 
-final class TreeTile extends BaseTile implements ResourceTile
+final class WoodFarmerXLTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTicks
 {
-    use ClickableResourceTile;
-    use TickableTile;
-
     public function __construct(
         public readonly int $x,
         public readonly int $y,
@@ -22,8 +22,17 @@ final class TreeTile extends BaseTile implements ResourceTile
         public readonly ?float $elevation,
         public readonly ?Biome $biome,
         public readonly float $noise,
-        public ?TileItem $item = null,
     ) {}
+
+    public function getBorderStyle(): BorderStyle
+    {
+        return new BorderStyle('#B66F27DD', 6);
+    }
+
+    public function handleTicks(MapGame $game, int $ticks): Action
+    {
+        return (new UpdateResourceCount(woodCount: $ticks * 10));
+    }
 
     public function getColor(): string
     {
@@ -38,23 +47,13 @@ final class TreeTile extends BaseTile implements ResourceTile
         return "#00{$hex}00";
     }
 
-    public function getBorderColor(): string
-    {
-        return '#B66F27DD';
-    }
-
-    public function handleTicks(MapGame $game, int $ticks): void
-    {
-        $this->item?->handleTicks($game, $this, $ticks);
-    }
-
     public function getResource(): Resource
     {
         return Resource::Wood;
     }
 
-    public function getItem(): ?TileItem
+    public function handleClick(MapGame $game): Action
     {
-        return $this->item;
+        return new UpdateResourceCount(woodCount: 1);
     }
 }

@@ -3,10 +3,10 @@
 namespace App\Map\Item\HandHeldItem;
 
 use App\Map\Item\HandHeldItem;
-use App\Map\Item\ItemPrice;
 use App\Map\MapGame;
-use App\Map\Tile\ResourceTile\GoldVeinTile;
-use App\Map\Tile\ResourceTile\StoneVeinTile;
+use App\Map\Price;
+use App\Map\Tile\ResourceTile\old\GoldVeinTile;
+use App\Map\Tile\ResourceTile\old\StoneVeinTile;
 use App\Map\Tile\Tile;
 
 final class Pickaxe implements HandHeldItem
@@ -21,9 +21,9 @@ final class Pickaxe implements HandHeldItem
         return 'Pickaxe';
     }
 
-    public function getPrice(): ItemPrice
+    public function getPrice(): Price
     {
-        return new ItemPrice(
+        return new Price(
             wood: 20,
             stone: 20,
         );

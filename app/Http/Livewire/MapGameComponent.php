@@ -6,7 +6,7 @@ use App\Map\MapGame;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
-class Map extends Component
+class MapGameComponent extends Component
 {
     public int $seed;
 
@@ -18,13 +18,13 @@ class Map extends Component
 
     public array $form = [];
 
-    protected $listeners = ['handleKeypress'];
+    protected $listeners = ['handleKeypress', 'handleClick', 'handleMetaClick'];
 
     public function render(): View
     {
-        $game = MapGame::resolve($this, $this->seed)->persist();
+        $game = MapGame::resolve($this->seed)->persist();
 
-        return view('livewire.map', [
+        return view('livewire.mapGameComponent', [
             'board' => $game
                 ->baseLayer
                 ->generate()
@@ -33,29 +33,36 @@ class Map extends Component
         ]);
     }
 
-    public function handleClick($x, $y): void
+    public function handleClick(int $x, int $y): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->handleClick($x, $y)
+            ->persist();
+    }
+
+    public function handleMetaClick(int $x, int $y): void
+    {
+        MapGame::resolve($this->seed)
+            ->showMenu($x, $y)
             ->persist();
     }
 
     public function resetGame(): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->destroy();
     }
 
     public function buyHandHeldItem(string $itemId): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->buyHandHeldItem($itemId)
             ->persist();
     }
 
     public function selectItem(string $itemId): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->selectItem($itemId)
             ->persist();
     }
@@ -74,16 +81,25 @@ class Map extends Component
         };
     }
 
+    public function upgradeTile(int $x, int $y): void
+    {
+        MapGame::resolve($this->seed)
+            ->upgradeTile($x, $y)
+            ->persist();
+
+        $this->emit('update');
+    }
+
     public function saveMenu(): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->saveMenu($this->form)
             ->persist();
     }
 
     public function closeMenu(): void
     {
-        MapGame::resolve($this, $this->seed)
+        MapGame::resolve($this->seed)
             ->closeMenu()
             ->persist();
     }

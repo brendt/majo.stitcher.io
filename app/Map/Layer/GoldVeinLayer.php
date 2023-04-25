@@ -7,10 +7,10 @@ use App\Map\Biome\IcePlainsBiome;
 use App\Map\Biome\MesaBiome;
 use App\Map\Biome\TundraBiome;
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Tile\ResourceTile\GoldVeinTile;
 use App\Map\Tile\GenericTile\LandTile;
-use App\Map\Tile\Tile;
 use App\Map\Tile\GenericTile\WaterTile;
+use App\Map\Tile\ResourceTile\old\GoldVeinTile;
+use App\Map\Tile\Tile;
 
 final readonly class GoldVeinLayer implements Layer
 {

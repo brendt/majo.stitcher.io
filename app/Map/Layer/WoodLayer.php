@@ -2,15 +2,12 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Biome\DesertBiome;
 use App\Map\Biome\ForestBiome;
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Tile\ResourceTile\GoldVeinTile;
-use App\Map\Tile\GenericTile\DebugTile;
+use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
-use App\Map\Tile\ResourceTile\TreeTile;
 
-final readonly class TreeLayer implements Layer
+final readonly class WoodLayer implements Layer
 {
     public function __construct(
         private PerlinGenerator $generator,
@@ -25,7 +22,7 @@ final readonly class TreeLayer implements Layer
                 return $tile;
             }
 
-            return new TreeTile(
+            return new WoodTile(
                 x: $tile->x,
                 y: $tile->y,
                 temperature: $tile->temperature,

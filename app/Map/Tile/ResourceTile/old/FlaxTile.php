@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\ResourceTile\old;
 
 use App\Map\Biome\Biome;
 use App\Map\Item\TileItem;
 use App\Map\MapGame;
 use App\Map\Tile\ClickableResourceTile;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\ResourceTile;
+use App\Map\Tile\HasResource;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\TickableTile;
 
-final class FlaxTile extends BaseTile implements ResourceTile
+final class FlaxTile extends BaseTile implements HasResource
 {
     use ClickableResourceTile;
     use TickableTile;

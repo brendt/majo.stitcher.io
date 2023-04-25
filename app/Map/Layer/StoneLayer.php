@@ -2,13 +2,12 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Biome\DesertBiome;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\LandTile;
-use App\Map\Tile\ResourceTile\StoneVeinTile;
+use App\Map\Tile\ResourceTile\StoneTile;
 use App\Map\Tile\Tile;
 
-final readonly class StoneVeinLayer implements Layer
+final readonly class StoneLayer implements Layer
 {
     public function __construct(
         private PerlinGenerator $generator,
@@ -26,7 +25,7 @@ final readonly class StoneVeinLayer implements Layer
             return $tile;
         }
 
-        return new StoneVeinTile(
+        return new StoneTile(
             x: $tile->x,
             y: $tile->y,
             temperature: $tile->temperature,
