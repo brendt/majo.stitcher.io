@@ -92,8 +92,8 @@
             user-select: none;
             display: none;
             position: fixed;
-            bottom: 0;
-            right: 0;
+            bottom: 40px;
+            right: 10px;
             font-weight: bold;
             width: auto;
             height: auto;
@@ -194,10 +194,10 @@
 
 <div
     x-data="{ tiles: [] }"
-    x-init="fetch('/tiles')
+    x-init="fetch('{{ action(\App\Http\Controllers\TilesController::class) }}')
         .then(response => response.json())
         .then(response => { tiles = response.tiles })"
-    @updatemap="fetch('/tiles')
+    @updatemap="fetch('{{ action(\App\Http\Controllers\TilesController::class) }}')
         .then(response => response.json())
         .then(response => tiles = response.tiles)"
     class="board"
@@ -218,19 +218,9 @@
                         : Livewire.emit('handleClick', {{ $tile->x }}, {{ $tile->y }})
                 "
         >
-            <div class="debug menu">
-                Tile: {{ $tile::class }}
-                <br>
-                Biome: {{ ($tile->biome ?? null) ? $tile->biome::class : '?' }}
-                <br>
-                Elevation: {{ $tile->elevation ?? '?' }}
-                <br>
-                Temperature: {{ $tile->temperature ?? '?' }}
-                <br>
-                Color: {{ $tile->getColor() }}
-                <br>
-                Noise: {{ $tile->noise ?? '?' }}
-            </div>
+            @if($tile instanceof \App\Map\Tile\HasTooltip)
+                {{ $tile->getTooltip() }}
+            @endif
         </div>
     @endforeach
 
@@ -244,15 +234,7 @@
                         : Livewire.emit('handleClick', tile.x, tile.y)
                 "
         >
-            <div class="debug menu">
-                Tile: <span x-text="tile.name"></span>
-                <br>
-                Biome: <span x-text="tile.biome"></span>
-                <br>
-                Elevation: <span x-text="tile.elevation"></span>
-                <br>
-                Temperature: <span x-text="tile.temperature"></span>
-            </div>
+            <div x-html="tile.tooltip"></div>
         </div>
     </template>
 </div>
@@ -260,8 +242,19 @@
 @livewireScripts
 <script>
     Livewire.on('update', function () {
-        document.getElementById('board').dispatchEvent(new CustomEvent('updatemap'));
+        updateMap();
     });
+
+    function updateMap() {
+        document.getElementById('board').dispatchEvent(new CustomEvent('updatemap'));
+    }
+
+    function refresh() {
+        updateMap();
+        setTimeout(refresh, 2000);
+    }
+
+    setTimeout(refresh, 1000);
 </script>
 </body>
 </html>

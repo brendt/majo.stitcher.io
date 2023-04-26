@@ -7,5 +7,5 @@ use App\Map\MapGame;
 
 interface HandlesTicks
 {
-    public function handleTicks(MapGame $game, int $ticks): Action;
+    public function handleTick(MapGame $game): Action;
 }

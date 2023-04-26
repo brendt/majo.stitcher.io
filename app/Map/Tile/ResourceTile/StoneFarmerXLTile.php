@@ -44,9 +44,9 @@ final class StoneFarmerXLTile extends BaseTile implements HasResource, HasBorder
         return new BorderStyle('#333333', 6);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
-        return (new UpdateResourceCount(stoneCount: $ticks * 3));
+        return (new UpdateResourceCount(stoneCount: 3));
     }
 
     public function getResource(): Resource

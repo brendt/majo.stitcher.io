@@ -48,9 +48,9 @@ final class FishFarmerXLTile extends BaseTile implements HasResource, HasBorder,
         return new BorderStyle('#FFFFFF55', 6);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
-        return (new UpdateResourceCount(fishCount: $ticks * 3));
+        return (new UpdateResourceCount(fishCount: 3));
     }
 
     public function handleClick(MapGame $game): Action

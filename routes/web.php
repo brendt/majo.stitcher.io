@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', HomeController::class);
-Route::get('/tiles', TilesController::class);
+Route::get('/map/tiles', TilesController::class);
 Route::get('/map/reset', ResetMapController::class);
 Route::post('/map/menu/save', SaveMenuController::class);
 Route::get('/map/{seed?}', MapController::class);

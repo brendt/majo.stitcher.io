@@ -7,6 +7,7 @@ use App\Map\MapGame;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;
+use App\Map\Tile\HasTooltip;
 use App\Map\Tile\Style;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
@@ -117,6 +118,7 @@ class BaseTile implements Tile
             'biome' => $this->getBiome() ? $this->getBiome()::class : null,
             'elevation' => $this->elevation,
             'temperature' => $this->temperature,
+            'tooltip' => $this instanceof HasTooltip ? $this->getTooltip()->render() : '',
         ];
     }
 }

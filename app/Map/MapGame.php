@@ -8,6 +8,9 @@ use App\Map\Layer\FishLayer;
 use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
 use App\Map\Layer\StoneLayer;
+use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\GenericTile\LandTile;
+use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\HasMenu;
 use App\Map\Item\Item;
 use App\Map\Layer\BaseLayer;
@@ -101,11 +104,24 @@ final class MapGame
             ->add(new FlaxLayer($generator))
             ->generate();
 
-        return new self(
+        $game = new self(
             seed: $seed,
             baseLayer: $baseLayer,
             gameTime: time(),
         );
+
+        foreach ($baseLayer->loop() as $tile) {
+            if (
+                $tile::class === LandTile::class
+                || $tile::class === WaterTile::class
+            ) {
+                continue;
+            }
+
+            $game->addTile($tile);
+        }
+
+        return $game;
     }
 
     public function showMenu(int $x, int $y): self
@@ -166,10 +182,19 @@ final class MapGame
 
         $difference = $newTime - $oldTime;
 
-        foreach ($this->loop() as $tile) {
-            if ($tile instanceof HandlesTicks) {
-                $action = $tile->handleTicks($this, $difference);
+        if ($difference <= 0) {
+            return;
+        }
 
+        \Log::debug($difference);
+
+        foreach ($this->loop() as $tile) {
+            if (! $tile instanceof HandlesTicks) {
+                continue;
+            }
+
+            foreach (range(1, $difference) as $tick) {
+                $action = $tile->handleTick($this);
                 $action($this);
             }
         }
@@ -189,8 +214,8 @@ final class MapGame
             $tickAction = null;
 
             $tickAction = match (true) {
-                $tile instanceof TradingPostTile, $tile instanceof TradingPostXLTile => $tile->handleTicks($this, 1),
-                $tile instanceof HasResource && $tile->getResource() === $resource => $tile->handleTicks($this, 1),
+                $tile instanceof TradingPostTile, $tile instanceof TradingPostXLTile => $tile->handleTick($this),
+                $tile instanceof HasResource && $tile->getResource() === $resource => $tile->handleTick($this),
                 default => null,
             };
 
@@ -207,14 +232,20 @@ final class MapGame
     /**
      * @return Tile[]
      */
-    public function getNeighbours(Tile $tile): array
+    public function getNeighbours(Tile $tile, int $radius = 1): array
     {
-        return array_filter([
-            $this->getTile($tile->getX() - 1, $tile->getY()),
-            $this->getTile($tile->getX() + 1, $tile->getY()),
-            $this->getTile($tile->getX(), $tile->getY() - 1),
-            $this->getTile($tile->getX(), $tile->getY() + 1),
-        ]);
+        $startX = $tile->getX();
+        $startY = $tile->getY();
+
+        $neighbours = [];
+
+        for ($x = $startX - $radius; $x <= $startX + $radius; $x++) {
+            for ($y = $startY - $radius; $y <= $startY + $radius; $y++) {
+                $neighbours[] = $this->getTile($x, $y);
+            }
+        }
+
+        return array_filter($neighbours);
     }
 
     public function getTile(int $x, int $y): ?Tile
@@ -266,12 +297,19 @@ final class MapGame
     private function setTile(int $x, int $y, Tile $newTile): void
     {
         $this->tiles[$x][$y] = $newTile;
+        $this->baseLayer->remove($x, $y);
     }
 
     public function loop(): Generator
     {
         foreach ($this->baseLayer->loop() as $tile) {
-            yield $this->tiles[$tile->x][$tile->y] ?? $tile;
+            yield $tile;
+        }
+
+        foreach ($this->tiles as $row) {
+            foreach ($row as $tile) {
+                yield $tile;
+            }
         }
     }
 
@@ -287,5 +325,10 @@ final class MapGame
                 yield $tile;
             }
         }
+    }
+
+    private function addTile(Tile $tile): void
+    {
+        $this->setTile($tile->getX(), $tile->getY(), $tile);
     }
 }

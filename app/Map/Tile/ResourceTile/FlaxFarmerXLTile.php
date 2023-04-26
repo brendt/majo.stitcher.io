@@ -51,9 +51,9 @@ final class FlaxFarmerXLTile extends BaseTile implements HasResource, HasBorder,
         return new BorderStyle('#FFFFFF66', 6);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
-        return (new UpdateResourceCount(flaxCount: $ticks * 3));
+        return (new UpdateResourceCount(flaxCount: 3));
     }
 
     public function handleClick(MapGame $game): Action

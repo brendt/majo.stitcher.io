@@ -30,6 +30,8 @@ class MapGameComponent extends Component
         MapGame::resolve()
             ->handleClick($x, $y)
             ->persist();
+
+        $this->emit('update');
     }
 
     public function handleMetaClick(int $x, int $y): void

@@ -1,4 +1,4 @@
-<div {{ $game->paused ? '' : 'wire:poll' }}>
+<div {{ $game->paused ? '' : 'wire:poll.1s' }}>
     @if($game->menu ?? null)
         <div class="menu-window">
             <div class="menu tile-menu">

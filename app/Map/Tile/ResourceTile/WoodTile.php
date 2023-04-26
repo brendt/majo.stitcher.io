@@ -3,6 +3,7 @@
 namespace App\Map\Tile\ResourceTile;
 
 use App\Map\Actions\Action;
+use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
@@ -11,12 +12,15 @@ use App\Map\Price;
 use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
+use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\HasTooltip;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
+use Illuminate\Contracts\View\View;
 
-final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable
+final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTicks, Upgradable, HasTooltip
 {
     public function __construct(
         public readonly int $x,
@@ -25,7 +29,10 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
         public readonly ?float $elevation,
         public readonly ?Biome $biome,
         public readonly float $noise,
-    ) {}
+        public WoodTileState $state = WoodTileState::GROWN,
+        public int $timeGrowing = 0,
+    ) {
+    }
 
     public function getResource(): Resource
     {
@@ -47,12 +54,49 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getBorderStyle(): BorderStyle
     {
-        return new BorderStyle('#B66F27DD');
+        return match($this->state) {
+            WoodTileState::GROWN => new BorderStyle('#B66F27DD'),
+            WoodTileState::GROWING => new BorderStyle('#B66F2733'),
+            WoodTileState::PLANTED => new BorderStyle('#B66F2766'),
+        };
     }
 
     public function handleClick(MapGame $game): Action
     {
+        if ($this->state !== WoodTileState::GROWN) {
+            return new DoNothing();
+        }
+
+        $this->markAsGrowing();
+
         return new UpdateResourceCount(woodCount: 1);
+    }
+
+    public function markAsGrowing(): void
+    {
+        $this->state = WoodTileState::GROWING;
+        $this->timeGrowing = 0;
+    }
+
+    public function markAsGrown(): void
+    {
+        $this->state = WoodTileState::GROWN;
+        $this->timeGrowing = 0;
+    }
+
+    public function handleTick(MapGame $game): Action
+    {
+        if ($this->state !== WoodTileState::GROWING) {
+            return new DoNothing();
+        }
+
+        $this->timeGrowing += 1;
+
+        if ($this->timeGrowing >= 40) {
+            $this->markAsGrown();
+        }
+
+        return new DoNothing();
     }
 
     public function getMenu(): Menu
@@ -73,11 +117,25 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getUpgradeTile(): Tile
     {
-        return new WoodFarmerTile(...(array) $this);
+        return new WoodFarmerTile(
+            x: $this->x,
+            y: $this->y,
+            temperature: $this->temperature,
+            elevation: $this->elevation,
+            biome: $this->biome,
+            noise: $this->noise,
+        );
     }
 
     public function canUpgrade(MapGame $game): bool
     {
         return true;
+    }
+
+    public function getTooltip(): View
+    {
+        return view('menu.debug', [
+            'tile' => $this,
+        ]);
     }
 }

@@ -51,6 +51,11 @@ final class BaseLayer
         return $this->board[$x][$y] ?? null;
     }
 
+    public function remove(int $x, int $y): void
+    {
+        unset($this->board[$x][$y]);
+    }
+
     public function add(Layer $layer): self
     {
         $this->pendingLayers[] = $layer;

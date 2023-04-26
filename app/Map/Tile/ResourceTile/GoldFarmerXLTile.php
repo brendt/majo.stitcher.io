@@ -44,9 +44,9 @@ final class GoldFarmerXLTile extends BaseTile implements HasResource, HasBorder,
         return new BorderStyle('#FFEC53', 6);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
-        return (new UpdateResourceCount(goldCount: $ticks * 3));
+        return (new UpdateResourceCount(goldCount: 3));
     }
 
     public function getResource(): Resource

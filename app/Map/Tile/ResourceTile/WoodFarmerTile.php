@@ -3,6 +3,7 @@
 namespace App\Map\Tile\ResourceTile;
 
 use App\Map\Actions\Action;
+use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
@@ -33,22 +34,36 @@ final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, H
         return new BorderStyle('#B66F27DD', 4);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
-        return (new UpdateResourceCount(woodCount: $ticks));
+        $surroundingTiles = $game->getNeighbours($this, 2);
+
+        foreach ($surroundingTiles as $tile) {
+            if (! $tile instanceof WoodTile) {
+                continue;
+            }
+
+            if ($tile->state !== WoodTileState::GROWN) {
+                continue;
+            }
+
+            $tile->markAsGrowing();
+
+            return (new UpdateResourceCount(woodCount: 1));
+        }
+
+        $randomTile = $surroundingTiles[array_rand($surroundingTiles)];
+
+        if ($randomTile instanceof WoodTile && $randomTile->state === WoodTileState::GROWING) {
+            $randomTile->markAsGrown();
+        }
+
+        return new DoNothing();
     }
 
     public function getColor(): string
     {
-        $value = $this->noise;
-
-        while ($value < 0.6) {
-            $value += 0.1;
-        }
-
-        $hex = hex($value);
-
-        return "#00{$hex}00";
+        return "#00FF00";
     }
 
     public function getResource(): Resource

@@ -63,19 +63,19 @@ final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, Hand
         $this->output = Resource::tryFrom($data['output']);
     }
 
-    public function handleTicks(MapGame $game, int $ticks): Action
+    public function handleTick(MapGame $game): Action
     {
         if (! $this->input || ! $this->output) {
             return new DoNothing();
         }
 
-        if ($game->{$this->input->getCountPropertyName()} < 4 * $ticks) {
+        if ($game->{$this->input->getCountPropertyName()} < 4) {
             return new DoNothing();
         }
 
         return new UpdateResourceCount(...[
-            $this->input->getCountPropertyName() => -4 * $ticks,
-            $this->output->getCountPropertyName() => $ticks,
+            $this->input->getCountPropertyName() => -4,
+            $this->output->getCountPropertyName() => 1,
         ]);
     }
 
