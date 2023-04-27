@@ -1,24 +1,23 @@
 <?php
 
-namespace App\Map\Item\HandHeldItem;
+namespace App\Map\Inventory\Item;
 
-use App\Map\Item\HandHeldItem;
+use App\Map\Inventory\HandHeldItem;
 use App\Map\MapGame;
 use App\Map\Price;
-use App\Map\Tile\ResourceTile\old\GoldVeinTile;
-use App\Map\Tile\ResourceTile\old\StoneVeinTile;
+use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
 
-final class Pickaxe implements HandHeldItem
+final class Axe implements HandHeldItem
 {
     public function getId(): string
     {
-        return 'Pickaxe';
+        return 'Axe';
     }
 
     public function getName(): string
     {
-        return 'Pickaxe';
+        return 'Axe';
     }
 
     public function getPrice(): Price
@@ -31,8 +30,7 @@ final class Pickaxe implements HandHeldItem
 
     public function canInteract(MapGame $game, Tile $tile): bool
     {
-        return $tile instanceof StoneVeinTile
-            || $tile instanceof GoldVeinTile;
+        return $tile instanceof WoodTile;
     }
 
     public function getModifier(): int

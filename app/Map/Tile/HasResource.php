@@ -2,7 +2,7 @@
 
 namespace App\Map\Tile;
 
-use App\Map\Item\TileItem;
+use App\Map\Inventory\TileItem;
 use App\Map\Tile\ResourceTile\Resource;
 
 interface HasResource

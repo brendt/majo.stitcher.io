@@ -50,10 +50,13 @@ class MapGameComponent extends Component
         $this->emit('update');
     }
 
-    public function resetGame(): void
+    public function selectItem(string $itemId): void
     {
         MapGame::resolve()
-            ->destroy();
+            ->selectItem($itemId)
+            ->persist();
+
+        $this->emit('update');
     }
 
     public function upgradeTile(int $x, int $y): void

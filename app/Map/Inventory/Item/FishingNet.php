@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Map\Item\HandHeldItem;
+namespace App\Map\Inventory\Item;
 
-use App\Map\Item\HandHeldItem;
+use App\Map\Inventory\HandHeldItem;
 use App\Map\MapGame;
 use App\Map\Price;
 use App\Map\Tile\ResourceTile\old\FishTile;

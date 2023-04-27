@@ -241,13 +241,13 @@
 
 @livewireScripts
 <script>
-    Livewire.on('update', function () {
-        updateMap();
-    });
-
     function updateMap() {
         document.getElementById('board').dispatchEvent(new CustomEvent('updatemap'));
     }
+
+    Livewire.on('update', function () {
+        updateMap();
+    });
 
     function refresh() {
         updateMap();

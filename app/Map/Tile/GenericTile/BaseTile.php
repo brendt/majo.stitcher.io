@@ -3,6 +3,7 @@
 namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
+use App\Map\Inventory\ItemForTile;
 use App\Map\MapGame;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
@@ -32,6 +33,10 @@ class BaseTile implements Tile
 
     public function isClickable(MapGame $game): bool
     {
+        if ($game->selectedItem instanceof ItemForTile) {
+            return $game->selectedItem->canBeUsedOn($this, $game);
+        }
+
         if ($this instanceof HandlesClick) {
             return true;
         }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Map\Item\HandHeldItem;
+namespace App\Map\Inventory\Item;
 
-use App\Map\Item\HandHeldItem;
+use App\Map\Inventory\FlaxTile;
+use App\Map\Inventory\HandHeldItem;
 use App\Map\MapGame;
 use App\Map\Price;
-use App\Map\Tile\ResourceTile\old\FlaxTile;
 use App\Map\Tile\Tile;
 
 final class Shears implements HandHeldItem

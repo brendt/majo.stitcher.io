@@ -3,25 +3,26 @@
 namespace App\Map;
 
 use App\Map\Actions\UpdateResourceCount;
-use App\Map\Item\HandHeldItem;
-use App\Map\Layer\FishLayer;
-use App\Map\Layer\FlaxLayer;
-use App\Map\Layer\GoldLayer;
-use App\Map\Layer\StoneLayer;
-use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\GenericTile\LandTile;
-use App\Map\Tile\GenericTile\WaterTile;
-use App\Map\Tile\HasMenu;
-use App\Map\Item\Item;
+use App\Map\Inventory\Inventory;
+use App\Map\Inventory\Item;
+use App\Map\Inventory\Item\Seed;
+use App\Map\Inventory\ItemForTile;
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
 use App\Map\Layer\ElevationLayer;
+use App\Map\Layer\FishLayer;
+use App\Map\Layer\FlaxLayer;
+use App\Map\Layer\GoldLayer;
 use App\Map\Layer\LandLayer;
+use App\Map\Layer\StoneLayer;
 use App\Map\Layer\TemperatureLayer;
 use App\Map\Layer\WoodLayer;
 use App\Map\Noise\PerlinGenerator;
+use App\Map\Tile\GenericTile\LandTile;
+use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\HasMenu;
 use App\Map\Tile\HasResource;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
@@ -32,9 +33,6 @@ use App\Map\Tile\Upgradable;
 use Generator;
 use Illuminate\Support\Facades\Session;
 
-/**
- * @property HandHeldItem[] $items
- */
 final class MapGame
 {
     public function __construct(
@@ -45,12 +43,12 @@ final class MapGame
         public int $goldCount = 0,
         public int $fishCount = 0,
         public int $flaxCount = 0,
-        public ?Item $selectedItem = null,
         public int $gameTime = 0,
-        public array $handHeldItems = [],
         public bool $paused = false,
         public ?Menu $menu = null,
         private array $tiles = [],
+        public Inventory $inventory = new Inventory(),
+        public ?Item $selectedItem = null,
     ) {}
 
     public static function resolve(): self
@@ -121,6 +119,8 @@ final class MapGame
             $game->addTile($tile);
         }
 
+        $game->inventory->add(new Seed());
+
         return $game;
     }
 
@@ -165,6 +165,12 @@ final class MapGame
     {
         $tile = $this->getTile($x, $y);
 
+        if ($this->selectedItem instanceof ItemForTile) {
+            $this->useItem($this->selectedItem, $tile);
+
+            return $this;
+        }
+
         if ($tile instanceof HandlesClick) {
             $action = $tile->handleClick($this);
 
@@ -186,7 +192,11 @@ final class MapGame
             return;
         }
 
-        \Log::debug($difference);
+        // Prevent time traveling
+        if ($difference > 100) {
+            $this->gameTime = $newTime;
+            return;
+        }
 
         foreach ($this->loop() as $tile) {
             if (! $tile instanceof HandlesTicks) {
@@ -294,7 +304,7 @@ final class MapGame
         $this->fishCount -= $price->fish;
     }
 
-    private function setTile(int $x, int $y, Tile $newTile): void
+    public function setTile(int $x, int $y, Tile $newTile): void
     {
         $this->tiles[$x][$y] = $newTile;
         $this->baseLayer->remove($x, $y);
@@ -318,6 +328,11 @@ final class MapGame
         return $this->tiles;
     }
 
+    public function getAllTiles(): array
+    {
+        return iterator_to_array($this->loop());
+    }
+
     private function loopOwnTiles(): Generator
     {
         foreach ($this->tiles as $row) {
@@ -330,5 +345,33 @@ final class MapGame
     private function addTile(Tile $tile): void
     {
         $this->setTile($tile->getX(), $tile->getY(), $tile);
+    }
+
+    public function selectItem(string $itemId): self
+    {
+        $item = $this->inventory->findItem($itemId);
+
+        if (! $item) {
+            return $this;
+        }
+
+        if ($this->selectedItem?->getId() === $item->getId()) {
+            $this->selectedItem = null;
+        } else {
+            $this->selectedItem = $item;
+        }
+
+        return $this;
+    }
+
+    public function useItem(ItemForTile $item, Tile $tile): self
+    {
+        $itemId = $item->getId();
+
+        $item->useOn($tile, $this);
+        $this->inventory->remove($item);
+        $this->selectedItem = $this->inventory->findItem($itemId);
+
+        return $this;
     }
 }

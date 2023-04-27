@@ -3,9 +3,12 @@
 namespace App\Map\Tile\ResourceTile;
 
 use App\Map\Actions\Action;
+use App\Map\Actions\AddInventoryItem;
+use App\Map\Actions\Combine;
 use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
+use App\Map\Inventory\Item\Seed;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Price;
@@ -69,7 +72,10 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
 
         $this->markAsGrowing();
 
-        return new UpdateResourceCount(woodCount: 1);
+        return new Combine(
+            new UpdateResourceCount(woodCount: 1),
+            random_int(1, 2) === 1 ? new AddInventoryItem(new Seed()) : new DoNothing(),
+        );
     }
 
     public function markAsGrowing(): void
