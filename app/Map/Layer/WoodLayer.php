@@ -15,7 +15,8 @@ final readonly class WoodLayer implements Layer
 
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
-        if ($tile->getBiome()::class === ForestBiome::class) {
+        $biome = $tile->getBiome();
+        if ($biome && $biome::class === ForestBiome::class) {
             $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
 
             if ($noise < 0) {

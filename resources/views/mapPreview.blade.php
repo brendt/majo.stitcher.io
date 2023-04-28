@@ -6,28 +6,10 @@
     <title>Map</title>
 
     @vite('resources/css/app.css')
-    @livewireStyles
 
-    <script>
-        function saveMenu(form) {
-            fetch(
-                '{{ action(\App\Http\Controllers\SaveMenuController::class) }}',
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({form: form}),
-                }
-            ).then(() => Livewire.emit('closeMenu'));
-        }
-    </script>
-
-    <script src="https://unpkg.com/alpinejs" defer></script>
     <style>
         :root {
-            --tile-size: {{ 25 }}px;
+            --tile-size: {{ 5 }}px;
             --tile-border-color: none;
             --tile-border-width: 0px;
             --tile-gap: 0;
@@ -174,89 +156,23 @@
 </head>
 <body class="">
 
-
-<script>
-    window.addEventListener('keydown', function (event) {
-        if (event.key === 'Meta') {
-            window.metaDown = true;
-            document.querySelector('body').classList.add('metaDown');
-        }
-    });
-
-    window.addEventListener('keyup', function (event) {
-        if (event.key === 'Meta') {
-            window.metaDown = false;
-            document.querySelector('body').classList.remove('metaDown');
-        }
-    });
-</script>
-
-<livewire:map-game-component :seed="$seed"/>
-
 <div
-    x-data="{ tiles: [], game: [] }"
-    x-init="fetch('{{ action(\App\Http\Controllers\TilesController::class) }}')
-        .then(response => response.json())
-        .then(response => { tiles = response.tiles; game = response.game })"
-    @updatemap="fetch('{{ action(\App\Http\Controllers\TilesController::class) }}')
-        .then(response => response.json())
-        .then(response => { tiles = response.tiles; game = response.game })"
     class="board"
-    :class="game.class"
     id="board"
 >
-    @foreach ($game->loop() as $tile)
-        <div class="
-                    tile
-                    {!! $tile->getStyle($game)->class !!}
-                "
-             style="
-                    grid-area: {{ $tile->y }} / {{ $tile->x }} / {{ $tile->y }} / {{ $tile->x }};
-                    {!! $tile->getStyle($game)->style !!}
-                "
-             x-on:click="
-                    window.metaDown
-                        ? Livewire.emit('handleMetaClick', {{ $tile->x }}, {{ $tile->y }})
-                        : Livewire.emit('handleClick', {{ $tile->x }}, {{ $tile->y }})
-                "
-        >
-            @if($tile instanceof \App\Map\Tile\HasTooltip)
-                {{ $tile->getTooltip() }}
-            @endif
-        </div>
+    @foreach ($board as $row)
+        @foreach($row as $tile)
+            <div class="
+                        tile
+                    "
+                 style="
+                        grid-area: {{ $tile->y }} / {{ $tile->x }} / {{ $tile->y }} / {{ $tile->x }};
+                        --tile-color: {{ $tile->getColor() }};
+                    "
+            >
+            </div>
+        @endforeach
     @endforeach
-
-    <template x-for="tile in tiles">
-        <div class="tile"
-             :style="tile.style.style"
-             :class="tile.style.class"
-             x-on:click="
-                    window.metaDown
-                        ? Livewire.emit('handleMetaClick', tile.x, tile.y)
-                        : Livewire.emit('handleClick', tile.x, tile.y)
-                "
-        >
-            <div x-html="tile.tooltip"></div>
-        </div>
-    </template>
 </div>
-
-@livewireScripts
-<script>
-    function updateMap() {
-        document.getElementById('board').dispatchEvent(new CustomEvent('updatemap'));
-    }
-
-    Livewire.on('update', function () {
-        updateMap();
-    });
-
-    function refresh() {
-        updateMap();
-        setTimeout(refresh, 2000);
-    }
-
-    setTimeout(refresh, 1000);
-</script>
 </body>
 </html>

@@ -374,4 +374,17 @@ final class MapGame
 
         return $this;
     }
+
+    public function toArray(): array
+    {
+        $class= [];
+
+        if ($this->selectedItem) {
+            $class[] = 'clickable-LandTile';
+        }
+
+        return [
+            'class' => implode(' ', $class),
+        ];
+    }
 }

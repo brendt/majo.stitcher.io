@@ -21,6 +21,7 @@ class TilesController
                 ->flatten()
                 ->map(fn (Tile $tile) => $tile->toArray($game))
                 ->toArray(),
+            'game' => $game->toArray(),
         ];
     }
 }

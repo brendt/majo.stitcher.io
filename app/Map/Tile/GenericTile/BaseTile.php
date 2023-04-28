@@ -59,6 +59,7 @@ class BaseTile implements Tile
         $borderWidth = $borderStyle->width ?? 0;
         $borderColor = $borderStyle->color ?? '';
         $clickable = $this->isClickable($game);
+        $slug = $this->getSlug();
 
         return new Style(
             style: <<<EOF
@@ -72,6 +73,7 @@ class BaseTile implements Tile
                 [
                     $this instanceof HasBorder ? 'tile-border' : '',
                     $clickable ? 'clickable' : 'unclickable',
+                    "tile-{$slug}",
                 ],
             )
         );
@@ -111,6 +113,15 @@ class BaseTile implements Tile
     public function getY(): int
     {
         return $this->y;
+    }
+
+    public function getSlug(): string
+    {
+        $class = $this::class;
+
+        $parts = explode('\\', $class);
+
+        return $parts[array_key_last($parts)];
     }
 
     public function toArray(MapGame $game): array
