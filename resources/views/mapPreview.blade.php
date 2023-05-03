@@ -9,7 +9,7 @@
 
     <style>
         :root {
-            --tile-size: {{ 5 }}px;
+            --tile-size: 10px;
             --tile-border-color: none;
             --tile-border-width: 0px;
             --tile-gap: 0;
@@ -27,11 +27,8 @@
         }
 
         .board {
-            position: absolute;
-            left: 0;
-            top: 0;
+            margin: 0 auto;
             z-index: -2;
-            box-shadow: 0 0 10px 0 #00000033;
             border-radius: 2px;
             display: grid;
             width: 100%;
@@ -40,7 +37,6 @@
             grid-template-columns: repeat({{ count($board) }}, var(--tile-size));
             grid-auto-rows: var(--tile-size);
             grid-gap: var(--tile-gap);
-            margin: var(--tile-gap);
         }
 
         .tile {

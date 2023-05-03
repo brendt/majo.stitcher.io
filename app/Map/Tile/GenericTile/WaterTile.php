@@ -11,6 +11,16 @@ final class WaterTile extends BaseTile
 
     public function getColor(): string
     {
-        return $this->getBiome()->getWaterColor($this);
+        $elevation = $this->elevation;
+
+        while ($elevation < 0.25) {
+            $elevation += 0.01;
+        }
+
+        $r = hex($elevation / 3);
+        $g = hex($elevation / 3);
+        $b = hex($elevation);
+
+        return "#{$r}{$g}{$b}";
     }
 }

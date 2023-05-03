@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "081ae3ab5bb0829c559e8032cc93885a",
+    "content-hash": "60b96e736078d6b63a6e9d63023fab76",
     "packages": [
+        {
+            "name": "blackscorp/simplexnoise",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/BlackScorp/simplexnoise.git",
+                "reference": "e79ac829be85122d4558878fc54e07b961194102"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/BlackScorp/simplexnoise/zipball/e79ac829be85122d4558878fc54e07b961194102",
+                "reference": "e79ac829be85122d4558878fc54e07b961194102",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BlackScorp\\SimplexNoise\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vitalij Mik",
+                    "email": "cccpmik+composer@gmail.com"
+                }
+            ],
+            "description": "Simplex Noise algorithm written in PHP to generate a random noise",
+            "support": {
+                "issues": "https://github.com/BlackScorp/simplexnoise/issues",
+                "source": "https://github.com/BlackScorp/simplexnoise/tree/v0.2.0"
+            },
+            "time": "2022-06-19T11:16:40+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.11.0",

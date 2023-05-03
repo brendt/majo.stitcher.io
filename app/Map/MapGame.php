@@ -13,11 +13,13 @@ use App\Map\Layer\ElevationLayer;
 use App\Map\Layer\FishLayer;
 use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
+use App\Map\Layer\IslandLayer;
 use App\Map\Layer\LandLayer;
 use App\Map\Layer\StoneLayer;
 use App\Map\Layer\TemperatureLayer;
 use App\Map\Layer\WoodLayer;
 use App\Map\Noise\PerlinGenerator;
+use App\Map\Noise\SimplexGenerator;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\HandlesClick;
@@ -88,18 +90,19 @@ final class MapGame
 
     public static function init(int $seed): self
     {
-        $generator = new PerlinGenerator($seed);
+        $perlin = new PerlinGenerator($seed);
 
         $baseLayer = (new BaseLayer(width: 100, height: 70))
-            ->add(new TemperatureLayer($generator))
-            ->add(new ElevationLayer($generator))
+            ->add(new TemperatureLayer($perlin))
+            ->add(new ElevationLayer($perlin))
+            ->add(new IslandLayer())
             ->add(new BiomeLayer())
-            ->add(new LandLayer($generator))
-            ->add(new WoodLayer($generator))
-            ->add(new StoneLayer($generator))
-            ->add(new FishLayer($generator))
-            ->add(new GoldLayer($generator))
-            ->add(new FlaxLayer($generator))
+            ->add(new LandLayer($perlin))
+            ->add(new WoodLayer($perlin))
+            ->add(new StoneLayer($perlin))
+            ->add(new FishLayer($perlin))
+            ->add(new GoldLayer($perlin))
+            ->add(new FlaxLayer($perlin))
             ->generate();
 
         $game = new self(

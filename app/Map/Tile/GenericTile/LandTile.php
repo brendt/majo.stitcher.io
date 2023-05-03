@@ -27,6 +27,20 @@ final class LandTile extends BaseTile implements Upgradable
 
     public function getColor(): string
     {
+        if ($this->elevation > 0.4 && $this->elevation <= 0.44) {
+            $hex = $this->elevation;
+
+            while ($hex <= 0.8) {
+                $hex += 0.05;
+            }
+
+            $r = hex($hex);
+            $g = hex($hex);
+            $b = hex($hex / 2);
+
+            return "#{$r}{$g}{$b}";
+        }
+
         return $this->getBiome()->getGrassColor($this);
     }
 

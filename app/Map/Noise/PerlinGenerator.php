@@ -8,7 +8,7 @@ namespace App\Map\Noise;
 // Originally from http://therandomuniverse.blogspot.com/2007/01/perlin-noise-your-new-best-friend.html
 // but the site appears to be down, so here is a mirror of it: https://gist.github.com/story75/d8cc01a1b826a3df9102#file-perlin-php-L31
 
-class PerlinGenerator
+class PerlinGenerator implements Noise
 {
     public array $p;
 
@@ -81,10 +81,6 @@ class PerlinGenerator
         $y += $this->seed;
         $z += $this->seed;
 
-        $orig_x = $x;
-        $orig_y = $y;
-        $orig_z = $z;
-
         $X1 = (int) floor($x) & 255;                  // FIND UNIT CUBE THAT
         $Y1 = (int) floor($y) & 255;                  // CONTAINS POINT.
         $Z1 = (int) floor($z) & 255;
@@ -134,26 +130,6 @@ class PerlinGenerator
         $v = $h < 4 ? $y : ($h == 12 || $h == 14 ? $x : $z);
 
         return (($h & 1) == 0 ? $u : -$u) + (($h & 2) == 0 ? $v : -$v);
-    }
-
-    //This function I've added. It creates one dimension of noise.
-    function random1D($x): float|int
-    {
-        $x += $this->seed;
-
-        $value = 0.0;
-        $size = 3;
-
-        while ($size >= 1) {
-            $value += $this->smoothNoise($x * 3 / $size, 100 / $size, 100 / $size);
-            $size--;
-        }
-
-        if ($value < -1) $value = -1;
-        if ($value > 1) $value = 1;
-
-        return $value;
-
     }
 
     //Same as random1D() only for 2 dimensions.
