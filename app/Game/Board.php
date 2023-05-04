@@ -5,6 +5,8 @@ namespace App\Game;
 use Exception;
 use Generator;
 use Illuminate\Support\Facades\Session;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 /*
  * TODO:
@@ -20,6 +22,7 @@ final class Board
 {
     public function __construct(
         public array $tiles = [],
+        public ?string $seed = null,
     ) {}
 
     public static function resolve(): ?self
@@ -37,9 +40,11 @@ final class Board
         Session::remove('board');
     }
 
-    public static function init(): self
+    public static function init(?string $seed): self
     {
-        $board = new Board();
+        $board = new Board(
+            seed: $seed,
+        );
 
         $maskInput = "
 1 1 1 1 1 1 1 1 1 1
@@ -75,7 +80,7 @@ final class Board
             $values[] = $value;
         }
 
-        shuffle($values);
+        $values = $board->shuffleWithSeed($values);
 
         // Fill the board
         foreach ($mask as $y => $column) {
@@ -298,5 +303,12 @@ final class Board
         }
 
         return $highlightedTiles;
+    }
+
+    private function shuffleWithSeed(array $items): array
+    {
+        $randomizer = new Randomizer(new Mt19937($this->seed ?? time()));
+
+        return $randomizer->shuffleArray($items);
     }
 }

@@ -9,7 +9,7 @@
     @livewireStyles
 </head>
 <body class="">
-<livewire:game/>
+<livewire:game :seed="$seed"/>
 @livewireScripts
 </body>
 </html>

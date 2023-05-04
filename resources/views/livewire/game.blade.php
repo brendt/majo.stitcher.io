@@ -100,6 +100,9 @@
                         <span class="mx-2">Score: {{ $board->getScore() }}</span>
                     @endif
                     <span class="mx-2">Available pairs: {{ $board->getAvailablePairs() }}</span>
+                    @if($board->seed)
+                        <span class="mx-2">Seed: {{ $board->seed }}</span>
+                    @endif
                     <span class="mx-2">Tiles left: {{ $board->getTileCount() }}</span>
                     <button class="mx-2 underline hover:no-underline" wire:click="showHint">Show Hint</button>
                     <button class="mx-2 underline hover:no-underline" wire:click="resetBoard">Reset</button>

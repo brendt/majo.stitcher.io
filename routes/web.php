@@ -15,5 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', HomeController::class);
+Route::get('/{seed?}', HomeController::class);
 Route::get('/short', ShortGameController::class);

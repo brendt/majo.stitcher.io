@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Game\Board;
 
 class HomeController extends Controller
 {
-    public function __invoke()
+    public function __invoke(?string $seed = null)
     {
-        return view('home');
+        $board = Board::resolve();
+
+        if (($board->seed ?? null) !== $seed) {
+            $board->destroy();
+        }
+
+        return view('home', [
+            'seed' => $seed,
+        ]);
     }
 }

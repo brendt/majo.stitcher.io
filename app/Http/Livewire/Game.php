@@ -12,6 +12,8 @@ class Game extends Component
 
     public string $type = 'normal';
 
+    public ?string $seed = null;
+
     private function resolveBoard(): Board|ShortBoard|null
     {
         if ($this->type === 'short') {
@@ -27,7 +29,7 @@ class Game extends Component
             return ShortBoard::init();
         }
 
-        return Board::init();
+        return Board::init($this->seed);
     }
 
     public function mount(): void
