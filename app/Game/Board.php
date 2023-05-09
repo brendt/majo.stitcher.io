@@ -59,7 +59,7 @@ final class Board
 ";
 
         // Base mask
-        $mask = collect(explode(PHP_EOL, trim($maskInput)))
+        $mask = collect(explode("\n", trim($maskInput)))
             ->map(fn (string $line) => collect(explode(' ', trim($line)))
                 ->map(fn (string $height) => array_fill(0, $height, true))
             );
