@@ -4,7 +4,6 @@ namespace App\Map\Layer;
 
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\GenericTile\DebugTile;
 use App\Map\Tile\Tile;
 
 final readonly class TemperatureLayer implements Layer

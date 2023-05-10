@@ -134,7 +134,7 @@ class BaseTile implements Tile
             'biome' => $this->getBiome() ? $this->getBiome()::class : null,
             'elevation' => $this->elevation,
             'temperature' => $this->temperature,
-            'tooltip' => $this instanceof HasTooltip ? $this->getTooltip()->render() : '',
+            'tooltip' => $this instanceof HasTooltip ? $this->getTooltip() : '',
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Map\Layer;
 use App\Map\Biome\ForestBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Noise\Noise;
+use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
 
@@ -16,6 +17,10 @@ final readonly class WoodLayer implements Layer
 
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
+        if (! $tile instanceof LandTile) {
+            return $tile;
+        }
+
         $biome = $tile->getBiome();
 
         if ($biome instanceof ForestBiome) {

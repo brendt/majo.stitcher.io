@@ -221,7 +221,7 @@
                 "
         >
             @if($tile instanceof \App\Map\Tile\HasTooltip)
-                {{ $tile->getTooltip() }}
+                {!! $tile->getTooltip() !!}
             @endif
         </div>
     @endforeach

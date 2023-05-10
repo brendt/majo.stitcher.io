@@ -138,10 +138,12 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
         return true;
     }
 
-    public function getTooltip(): View
+    public function getTooltip(): string
     {
-        return view('menu.debug', [
-            'tile' => $this,
-        ]);
+        return <<<HTML
+        <div class="debug menu">
+            Tile: Woodtile
+        </div>
+        HTML;
     }
 }
