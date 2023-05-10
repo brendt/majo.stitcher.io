@@ -8,15 +8,6 @@ use Illuminate\Support\Facades\Session;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
 
-/*
- * TODO:
- *  - Fireworks
- *  - Short version
- *  - Keyboard shortcuts
- *  - Improved styling
- *  - Max amount of hints and shuffles
- */
-
 /** @property \App\Game\Tile[][][] $tiles */
 final class Board
 {
@@ -194,20 +185,6 @@ final class Board
         }
     }
 
-    /**
-     * @return \Generator|\App\Game\Tile[]
-     */
-    private function loop(): Generator
-    {
-        foreach ($this->tiles as $row) {
-            foreach ($row as $column) {
-                foreach ($column as $tile) {
-                    yield $tile;
-                }
-            }
-        }
-    }
-
     private function hasOpenMatch(Tile $tile): bool
     {
         foreach ($this->loop() as $matchingTile) {
@@ -310,5 +287,19 @@ final class Board
         $randomizer = new Randomizer(new Mt19937($this->seed ?? time()));
 
         return $randomizer->shuffleArray($items);
+    }
+
+    /**
+     * @return \Generator|\App\Game\Tile[]
+     */
+    private function loop(): Generator
+    {
+        foreach ($this->tiles as $row) {
+            foreach ($row as $column) {
+                foreach ($column as $tile) {
+                    yield $tile;
+                }
+            }
+        }
     }
 }

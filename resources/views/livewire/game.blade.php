@@ -100,7 +100,7 @@
                         <span class="mx-2">Score: {{ $board->getScore() }}</span>
                     @endif
                     <span class="mx-2">Available pairs: {{ $board->getAvailablePairs() }}</span>
-                    @if($board->seed)
+                    @if($board->seed ?? null)
                         <span class="mx-2">Seed: {{ $board->seed }}</span>
                     @endif
                     <span class="mx-2">Tiles left: {{ $board->getTileCount() }}</span>

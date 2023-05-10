@@ -87,11 +87,6 @@ class Game extends Component
         $board->shuffle()->persist();
     }
 
-    public function test(): void
-    {
-        ShortBoard::resolve()->handleEmptyRows()->persist();
-    }
-
     public function handleClick($x, $y): void
     {
         $board = $this->resolveBoard();

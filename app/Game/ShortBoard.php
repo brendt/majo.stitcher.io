@@ -91,158 +91,6 @@ final class ShortBoard
         return $this;
     }
 
-    private function add(Tile $tile): void
-    {
-        $this->tiles[$tile->x][$tile->y][$tile->z] = $tile;
-    }
-
-    public function getXCount(): int
-    {
-        return 16;
-    }
-
-    public function getAvailablePairs(): int
-    {
-        $availablePairs = 0;
-
-        foreach ($this->loop() as $tile) {
-            $availablePairs += $this->hasOpenMatch($tile) ? 1 : 0;
-        }
-
-        return $availablePairs / 2;
-    }
-
-    public function getTileCount(): int
-    {
-        return iterator_count($this->loop());
-    }
-
-    public function get($x, $y, $z = null): ?Tile
-    {
-        if ($z === null) {
-            $cell = $this->tiles[$x][$y] ?? [];
-
-            if ($cell === []) {
-                return null;
-            }
-
-            $z = max(array_keys($cell)) ?? null;
-        }
-
-        return $this->tiles[$x][$y][$z] ?? null;
-    }
-
-    public function remove(Tile $tile): void
-    {
-        unset($this->tiles[$tile->x][$tile->y][$tile->z]);
-
-        $this->score += (int) $tile->value;
-    }
-
-    public function removePair(Tile $a, Tile $b): void
-    {
-        $this->remove($a);
-        $this->remove($b);
-        $this->handleEmptyRows();
-    }
-
-    public function canSelect(Tile $tile): bool
-    {
-        $isOnTop = $this->get($tile->x, $tile->y)->isSame($tile);
-
-        if (! $isOnTop) {
-            return false;
-        }
-
-        $tileOnLeft = $this->get($tile->x - 1, $tile->y, $tile->z);
-
-        if ($tileOnLeft === null) {
-            return true;
-        }
-
-        $tileOnRight = $this->get($tile->x + 1, $tile->y, $tile->z);
-
-        if ($tileOnRight === null) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function getCurrentlySelectedTile(): ?Tile
-    {
-        foreach ($this->loop() as $tile) {
-            if ($tile->isSelected()) {
-                return $tile;
-            }
-        }
-
-        return null;
-    }
-
-    public function clearSelectedTiles(): void
-    {
-        foreach ($this->loop() as $tile) {
-            $tile->markUnselected();
-        }
-    }
-
-    /**
-     * @return \Generator|\App\Game\Tile[]
-     */
-    private function loop(): Generator
-    {
-        foreach ($this->tiles as $row) {
-            foreach ($row as $column) {
-                foreach ($column as $tile) {
-                    yield $tile;
-                }
-            }
-        }
-    }
-
-    private function hasOpenMatch(Tile $tile): bool
-    {
-        foreach ($this->loop() as $matchingTile) {
-            if (
-                $tile->matches($matchingTile)
-                && $this->canSelect($tile)
-                && $this->canSelect($matchingTile)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function isFinished(): bool
-    {
-        return $this->getTileCount() === 0;
-    }
-
-    public function isStuck(): bool
-    {
-        return $this->getTileCount() > 0
-            && $this->getAvailablePairs() === 0;
-    }
-
-    /**
-     * @return \App\Game\Tile[]
-     */
-    public function findHighlightedTiles(): array
-    {
-        $highlightedTiles = [];
-
-        foreach ($this->loop() as $tile) {
-            if ($tile->isHighlighted()) {
-                $highlightedTiles[] = $tile;
-            }
-        }
-
-        return $highlightedTiles;
-    }
-
     private function createNewRow(): array
     {
         $pairs = match (true) {
@@ -354,6 +202,144 @@ final class ShortBoard
         return $this->score;
     }
 
+    private function add(Tile $tile): void
+    {
+        $this->tiles[$tile->x][$tile->y][$tile->z] = $tile;
+    }
+
+    public function get($x, $y, $z = null): ?Tile
+    {
+        if ($z === null) {
+            $cell = $this->tiles[$x][$y] ?? [];
+
+            if ($cell === []) {
+                return null;
+            }
+
+            $z = max(array_keys($cell)) ?? null;
+        }
+
+        return $this->tiles[$x][$y][$z] ?? null;
+    }
+
+    public function getXCount(): int
+    {
+        return 16;
+    }
+
+    public function getAvailablePairs(): int
+    {
+        $availablePairs = 0;
+
+        foreach ($this->loop() as $tile) {
+            $availablePairs += $this->hasOpenMatch($tile) ? 1 : 0;
+        }
+
+        return $availablePairs / 2;
+    }
+
+    public function getTileCount(): int
+    {
+        return iterator_count($this->loop());
+    }
+
+    public function canSelect(Tile $tile): bool
+    {
+        $isOnTop = $this->get($tile->x, $tile->y)->isSame($tile);
+
+        if (! $isOnTop) {
+            return false;
+        }
+
+        $tileOnLeft = $this->get($tile->x - 1, $tile->y, $tile->z);
+
+        if ($tileOnLeft === null) {
+            return true;
+        }
+
+        $tileOnRight = $this->get($tile->x + 1, $tile->y, $tile->z);
+
+        if ($tileOnRight === null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getCurrentlySelectedTile(): ?Tile
+    {
+        foreach ($this->loop() as $tile) {
+            if ($tile->isSelected()) {
+                return $tile;
+            }
+        }
+
+        return null;
+    }
+
+    public function clearSelectedTiles(): void
+    {
+        foreach ($this->loop() as $tile) {
+            $tile->markUnselected();
+        }
+    }
+
+    public function remove(Tile $tile): void
+    {
+        unset($this->tiles[$tile->x][$tile->y][$tile->z]);
+
+        $this->score += (int) $tile->value;
+    }
+
+    public function removePair(Tile $a, Tile $b): void
+    {
+        $this->remove($a);
+        $this->remove($b);
+        $this->handleEmptyRows();
+    }
+
+    private function hasOpenMatch(Tile $tile): bool
+    {
+        foreach ($this->loop() as $matchingTile) {
+            if (
+                $tile->matches($matchingTile)
+                && $this->canSelect($tile)
+                && $this->canSelect($matchingTile)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isFinished(): bool
+    {
+        return $this->getTileCount() === 0;
+    }
+
+    /**
+     * @return \App\Game\Tile[]
+     */
+    public function findHighlightedTiles(): array
+    {
+        $highlightedTiles = [];
+
+        foreach ($this->loop() as $tile) {
+            if ($tile->isHighlighted()) {
+                $highlightedTiles[] = $tile;
+            }
+        }
+
+        return $highlightedTiles;
+    }
+
+    public function isStuck(): bool
+    {
+        return $this->getTileCount() > 0
+            && $this->getAvailablePairs() === 0;
+    }
+
     public function showHint(): self
     {
         $this->clearSelectedTiles();
@@ -407,5 +393,19 @@ final class ShortBoard
         $this->clearSelectedTiles();
 
         return $this;
+    }
+
+    /**
+     * @return \Generator|\App\Game\Tile[]
+     */
+    private function loop(): Generator
+    {
+        foreach ($this->tiles as $row) {
+            foreach ($row as $column) {
+                foreach ($column as $tile) {
+                    yield $tile;
+                }
+            }
+        }
     }
 }
