@@ -6,11 +6,12 @@ use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Price;
+use App\Map\Tile\HasTooltip;
 use App\Map\Tile\SpecialTile\TradingPostTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class LandTile extends BaseTile implements Upgradable
+final class LandTile extends BaseTile implements Upgradable, HasTooltip
 {
     public function __construct(
         public readonly int $x,
@@ -72,5 +73,16 @@ final class LandTile extends BaseTile implements Upgradable
         }
 
         return false;
+    }
+
+    public function getTooltip(): string
+    {
+        return <<<HTML
+        <div class="debug menu">
+            Temperature: {$this->temperature}
+            <br>
+            Elevation: {$this->elevation}
+        </div>
+        HTML;
     }
 }

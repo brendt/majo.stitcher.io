@@ -47,25 +47,27 @@ class PerlinGenerator implements Noise
         $this->seed = $seed ?? time();
     }
 
-    function noise($x, $y, $z, $size = null): float|int
+    function generate(int $x, int $y, int $iterations = 64): float|int
     {
-        if ($size == null) {
-            $size = $this->_default_size;
+        $z = 0;
+
+        if ($iterations == null) {
+            $iterations = $this->_default_size;
         }
 
         //Set the initial value and initial size
         $value = 0.0;
-        $initialSize = $size;
+        $initialSize = $iterations;
 
         //Add finer and finer hues of smoothed noise together
-        while ($size >= 1) {
+        while ($iterations >= 1) {
             $value += $this->smoothNoise(
-                x: $x / $size,
-                y: $y / $size,
-                z: $z / $size
-            ) * $size;
+                x: $x / $iterations,
+                y: $y / $iterations,
+                z: $z / $iterations
+            ) * $iterations;
 
-            $size /= 2.0;
+            $iterations /= 2.0;
         }
 
         //Return the result over the initial size

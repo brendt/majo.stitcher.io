@@ -5,6 +5,7 @@ namespace App\Map\Tile\GenericTile;
 use App\Map\Biome\Biome;
 use App\Map\Inventory\ItemForTile;
 use App\Map\MapGame;
+use App\Map\Point;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;
@@ -136,5 +137,10 @@ class BaseTile implements Tile
             'temperature' => $this->temperature,
             'tooltip' => $this instanceof HasTooltip ? $this->getTooltip() : '',
         ];
+    }
+
+    public function getPoint(): Point
+    {
+        return new Point($this->getX(), $this->getY());
     }
 }

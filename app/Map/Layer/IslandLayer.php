@@ -26,7 +26,7 @@ final readonly class IslandLayer implements Layer
             + pow(($base->height - $middleY), 2)
         );
 
-        $newElevation = 1 - ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.5;
+        $newElevation = 1 - ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.1;
 
         return $tile->setElevation($tile->elevation * $newElevation);
     }

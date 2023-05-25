@@ -20,7 +20,7 @@ final readonly class FishLayer implements Layer
             return $tile;
         }
 
-        $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+        $noise = $this->generator->generate($tile->x, $tile->y, 3);
 
         if ($noise < 0.3 || $noise > 0.32) {
             return $tile;

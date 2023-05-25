@@ -2,6 +2,7 @@
 
 namespace App\Map\Layer;
 
+use App\Map\Biome\DesertBiome;
 use App\Map\Biome\ForestBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Noise\Noise;
@@ -12,7 +13,7 @@ use App\Map\Tile\Tile;
 final readonly class WoodLayer implements Layer
 {
     public function __construct(
-        private Noise $generator,
+        private Noise $noise,
     ) {}
 
     public function generate(Tile $tile, BaseLayer $base): Tile
@@ -36,7 +37,7 @@ final readonly class WoodLayer implements Layer
 
     private function forestTile(Tile $tile): Tile
     {
-        $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+        $noise = $this->noise->generate($tile->x, $tile->y);
 
         if ($noise < 0) {
             return $tile;
@@ -54,7 +55,7 @@ final readonly class WoodLayer implements Layer
 
     private function plainsTile(Tile $tile): Tile
     {
-        $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+        $noise = $this->noise->generate($tile->x, $tile->y);
 
         if ($noise < 0.7 || $noise > 0.8) {
             return $tile;

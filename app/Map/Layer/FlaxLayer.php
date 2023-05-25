@@ -24,7 +24,7 @@ final readonly class FlaxLayer implements Layer
             return $tile;
         }
 
-        $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+        $noise = $this->generator->generate($tile->x, $tile->y, 3);
 
         if ($noise < 0.5 || $noise > 0.6) {
             return $tile;

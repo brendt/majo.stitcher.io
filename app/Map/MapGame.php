@@ -93,8 +93,8 @@ final class MapGame
         $perlin = new PerlinGenerator($seed);
 
         $baseLayer = (new BaseLayer(width: 100, height: 70))
-            ->add(new TemperatureLayer($perlin))
             ->add(new ElevationLayer($perlin))
+            ->add(new TemperatureLayer())
             ->add(new IslandLayer())
             ->add(new BiomeLayer())
             ->add(new LandLayer($perlin))

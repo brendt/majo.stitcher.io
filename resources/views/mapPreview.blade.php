@@ -166,6 +166,9 @@
                         --tile-color: {{ $tile->getColor() }};
                     "
             >
+                @if($tile instanceof \App\Map\Tile\HasTooltip)
+                    {!! $tile->getTooltip() !!}
+                @endif
             </div>
         @endforeach
     @endforeach

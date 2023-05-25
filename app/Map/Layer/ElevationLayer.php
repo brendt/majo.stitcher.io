@@ -2,15 +2,15 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Noise\PerlinGenerator;
+use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\GenericTile\DebugTile;
 use App\Map\Tile\Tile;
-use Illuminate\Support\Facades\Cache;
 
 final readonly class ElevationLayer implements Layer
 {
     public function __construct(
-        private PerlinGenerator $generator,
+        private Noise $generator
     ) {}
 
     public function generate(Tile $tile, BaseLayer $base): Tile
@@ -19,10 +19,15 @@ final readonly class ElevationLayer implements Layer
             return $tile;
         }
 
-        $elevation = $this->generator->noise($tile->x, $tile->y, 0, 60);
+        $elevation = $this->generator->generate(
+            $tile->x,
+            $tile->y,
+        );
 
-        $elevation = ($elevation / 2) + .5;
+//        $elevation = ($elevation / 2) + .5;
 
-        return $tile->setElevation($elevation);
+        return $tile
+            ->setElevation($elevation)
+            ->setTemperature($elevation);
     }
 }

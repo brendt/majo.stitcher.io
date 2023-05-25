@@ -10,7 +10,7 @@ final class SimplexGenerator implements Noise
         private $noise = new Noise2D()
     ) {}
 
-    public function noise($x, $y, $z, $size = null): float|int
+    public function generate($x, $y, $z, $size = null): float|int
     {
         return $this->noise->getGreyValue($x, $y);
     }

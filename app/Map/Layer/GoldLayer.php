@@ -21,7 +21,7 @@ final readonly class GoldLayer implements Layer
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
         if ($tile instanceof WaterTile && $tile->getBiome()::class === IcePlainsBiome::class) {
-            $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+            $noise = $this->generator->generate($tile->x, $tile->y, 3);
 
             if ($noise < 0.3 || $noise > 0.33) {
                 return $tile;
@@ -42,7 +42,7 @@ final readonly class GoldLayer implements Layer
         }
 
         if ($tile->getBiome()::class === MesaBiome::class) {
-            $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+            $noise = $this->generator->generate($tile->x, $tile->y, 3);
 
             if ($noise < 0.3 || $noise > 0.35) {
                 return $tile;
@@ -62,7 +62,7 @@ final readonly class GoldLayer implements Layer
             $tile->getBiome()::class === TundraBiome::class
             || $tile->getBiome()::class === DesertBiome::class
         ) {
-            $noise = $this->generator->noise($tile->x, $tile->y, 0, 3);
+            $noise = $this->generator->generate($tile->x, $tile->y, 3);
 
             if ($noise < 0.3 || $noise > 0.33) {
                 return $tile;
