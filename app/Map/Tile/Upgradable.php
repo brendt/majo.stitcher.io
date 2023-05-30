@@ -7,9 +7,16 @@ use App\Map\Price;
 
 interface Upgradable extends HasMenu
 {
-    public function canUpgrade(MapGame $game): bool;
+    /**
+     * @param MapGame $game
+     * @return Purchasable[]
+     */
+    public function canUpgradeTo(MapGame $game): array;
 
-    public function getUpgradePrice(): Price;
 
-    public function getUpgradeTile(): Tile;
+//    public function canUpgrade(MapGame $game): bool;
+//
+//    public function getUpgradePrice(MapGame $game): Price;
+//
+//    public function getUpgradeTile(MapGame $game): Tile;
 }

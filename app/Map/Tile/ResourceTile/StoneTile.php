@@ -18,7 +18,7 @@ use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Illuminate\Contracts\View\View;
 
-final class StoneTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable, HasTooltip
+final class StoneTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HasTooltip
 {
     public function __construct(
         public readonly int $x,
@@ -66,21 +66,6 @@ final class StoneTile extends BaseTile implements HasResource, HasBorder, Handle
                 'tile' => $this,
             ],
         );
-    }
-
-    public function getUpgradePrice(): Price
-    {
-        return new Price(wood: 1);
-    }
-
-    public function getUpgradeTile(): Tile
-    {
-        return new StoneFarmerTile(...(array) $this);
-    }
-
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
     }
 
     public function getTooltip(): string

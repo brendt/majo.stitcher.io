@@ -13,12 +13,13 @@ use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;
+use App\Map\Tile\Purchasable;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, HandlesTicks, HasBorder, Upgradable
+final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, HandlesTicks, HasBorder, Purchasable
 {
     public ?Resource $input = null;
 
@@ -79,26 +80,13 @@ final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, Hand
         ]);
     }
 
-    public function canUpgrade(MapGame $game): bool
+    public function getName(): string
     {
-        return true;
+        return 'TradingPostTile';
     }
 
-    public function getUpgradePrice(): Price
+    public function getPrice(MapGame $game): Price
     {
-        return new Price(gold: 1);
-    }
-
-    public function getUpgradeTile(): Tile
-    {
-        $tile = new TradingPostXLTile(
-            x: $this->x,
-            y: $this->y,
-        );
-
-        $tile->input = $this->input;
-        $tile->output = $this->output;
-
-        return $tile;
+        return new Price(wood: 1);
     }
 }

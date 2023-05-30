@@ -2,14 +2,16 @@
 
 namespace App\Map\Layer;
 
+use App\Map\Biome\BeachBiome;
 use App\Map\Biome\Biome;
 use App\Map\Biome\DesertBiome;
 use App\Map\Biome\ForestBiome;
-use App\Map\Biome\IcePlainsBiome;
-use App\Map\Biome\MesaBiome;
+use App\Map\Biome\MountainBiome;
 use App\Map\Biome\PlainsBiome;
-use App\Map\Biome\TundraBiome;
+use App\Map\Biome\SeaBiome;
 use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\GenericTile\LandTile;
+use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\Tile;
 
 final readonly class BiomeLayer implements Layer
@@ -21,38 +23,17 @@ final readonly class BiomeLayer implements Layer
         }
 
         $biome = match (true) {
-            $tile->temperature < 0.1 => $this->iceBiome($tile),
-            $tile->temperature < 0.4 => $this->coldBiome($tile),
-            $tile->temperature < 0.8 => $this->warmBiome($tile),
-            default => $this->hotBiome($tile),
+            $tile->elevation < 0.4 => new SeaBiome(),
+            $tile->elevation >= 0.4 && $tile->elevation < 0.44 => new BeachBiome(),
+            $tile->elevation >= 0.44 && $tile->elevation < 0.6 => new PlainsBiome(),
+            $tile->elevation >= 0.6 && $tile->elevation < 0.8 => new ForestBiome(),
+            $tile->elevation >= 0.8 => new MountainBiome(),
         };
 
-        return $tile->setBiome($biome);
-    }
+        $tile = $tile->setBiome($biome);
 
-    private function iceBiome(BaseTile $tile): Biome
-    {
-        return new IcePlainsBiome();
-    }
-
-    private function coldBiome(BaseTile $tile): Biome
-    {
-        return new TundraBiome();
-    }
-
-    private function warmBiome(BaseTile $tile): Biome
-    {
-        return match (true) {
-            $tile->elevation < 0.7 => new PlainsBiome(),
-            default => new ForestBiome(),
-        };
-    }
-
-    private function hotBiome(BaseTile $tile): Biome
-    {
-        return match (true) {
-            $tile->elevation < 0.8 => new DesertBiome(),
-            default => new MesaBiome(),
-        };
+        return $tile->elevation < 0.4
+            ? WaterTile::fromBase($tile)
+            : LandTile::fromBase($tile);
     }
 }

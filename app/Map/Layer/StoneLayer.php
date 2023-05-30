@@ -2,7 +2,7 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Noise\PerlinGenerator;
+use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\ResourceTile\StoneTile;
 use App\Map\Tile\Tile;
@@ -10,7 +10,7 @@ use App\Map\Tile\Tile;
 final readonly class StoneLayer implements Layer
 {
     public function __construct(
-        private PerlinGenerator $generator,
+        private Noise $noise,
     ) {}
 
     public function generate(Tile $tile, BaseLayer $base): Tile
@@ -19,9 +19,9 @@ final readonly class StoneLayer implements Layer
             return $tile;
         }
 
-        $noise = $this->generator->generate($tile->x, $tile->y, 3);
+        $noise = $this->noise->amount(0.06)->generate($tile->x, $tile->y);
 
-        if ($noise < 0.5 || $noise > 0.52) {
+        if ($noise <= 0.0) {
             return $tile;
         }
 

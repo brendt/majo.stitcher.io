@@ -2,16 +2,18 @@
 
 namespace App\Map\Tile\GenericTile;
 
+use App\Map\Biome\BeachBiome;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
-use App\Map\Price;
 use App\Map\Tile\HasTooltip;
+use App\Map\Tile\ResourceTile\GoldFarmerTile;
+use App\Map\Tile\ResourceTile\GoldTile;
+use App\Map\Tile\SpecialTile\FishingShackTile;
 use App\Map\Tile\SpecialTile\TradingPostTile;
-use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class LandTile extends BaseTile implements Upgradable, HasTooltip
+final class LandTile extends BaseTile implements HasTooltip, Upgradable
 {
     public function __construct(
         public readonly int $x,
@@ -23,26 +25,12 @@ final class LandTile extends BaseTile implements Upgradable, HasTooltip
 
     public static function fromBase(BaseTile $tile): self
     {
-        return new self(...(array) $tile);
+        return new self(...(array)$tile);
     }
 
     public function getColor(): string
     {
-        if ($this->elevation > 0.4 && $this->elevation <= 0.44) {
-            $hex = $this->elevation;
-
-            while ($hex <= 0.8) {
-                $hex += 0.05;
-            }
-
-            $r = hex($hex);
-            $g = hex($hex);
-            $b = hex($hex / 2);
-
-            return "#{$r}{$g}{$b}";
-        }
-
-        return $this->getBiome()->getGrassColor($this);
+        return $this->getBiome()->getTileColor($this);
     }
 
     public function getMenu(): Menu
@@ -54,35 +42,28 @@ final class LandTile extends BaseTile implements Upgradable, HasTooltip
         );
     }
 
-    public function getUpgradePrice(): Price
+    public function canUpgradeTo(MapGame $game): array
     {
-        return new Price(wood: 1);
-    }
+        $canUpgradeTo = [];
 
-    public function getUpgradeTile(): Tile
-    {
-        return new TradingPostTile(...(array) $this);
-    }
+        if ($this->getBiome() instanceof BeachBiome) {
+            $canUpgradeTo[] = new FishingShackTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome);
+        }
 
-    public function canUpgrade(MapGame $game): bool
-    {
         foreach ($game->getNeighbours($this) as $neighbour) {
             if ($neighbour instanceof WaterTile) {
-                return true;
+                $canUpgradeTo[] = new TradingPostTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome);
+                break;
             }
         }
 
-        return false;
-    }
+        foreach ($game->getNeighbours($this, 5) as $neighbour) {
+            if ($neighbour instanceof GoldTile) {
+                $canUpgradeTo[] = new GoldFarmerTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome, $this->elevation);
+                break;
+            }
+        }
 
-    public function getTooltip(): string
-    {
-        return <<<HTML
-        <div class="debug menu">
-            Temperature: {$this->temperature}
-            <br>
-            Elevation: {$this->elevation}
-        </div>
-        HTML;
+        return $canUpgradeTo;
     }
 }

@@ -16,7 +16,7 @@ use App\Map\Tile\HasResource;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class GoldTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable
+final class GoldTile extends BaseTile implements HasResource, HasBorder, HandlesClick
 {
     public function __construct(
         public readonly int $x,
@@ -34,6 +34,7 @@ final class GoldTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getColor(): string
     {
+        return 'gold';
         $value = $this->noise;
 
         while ($value > 0.8) {
@@ -64,20 +65,5 @@ final class GoldTile extends BaseTile implements HasResource, HasBorder, Handles
                 'tile' => $this,
             ],
         );
-    }
-
-    public function getUpgradePrice(): Price
-    {
-        return new Price(wood: 1);
-    }
-
-    public function getUpgradeTile(): Tile
-    {
-        return new GoldFarmerTile(...(array) $this);
-    }
-
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
     }
 }

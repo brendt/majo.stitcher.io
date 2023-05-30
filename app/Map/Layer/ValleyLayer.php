@@ -2,11 +2,14 @@
 
 namespace App\Map\Layer;
 
+use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 
-final readonly class IslandLayer implements Layer
+final readonly class ValleyLayer implements Layer
 {
+    public function __construct(private Noise $noise) {}
+
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
         if (! $tile instanceof BaseTile) {
@@ -26,7 +29,7 @@ final readonly class IslandLayer implements Layer
             + pow(($base->height - $middleY), 2)
         );
 
-        $newElevation = 1 - ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.3;
+        $newElevation = ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.5;
 
         return $tile->setElevation($tile->elevation * $newElevation);
     }

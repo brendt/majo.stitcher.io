@@ -2,7 +2,7 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Noise\PerlinGenerator;
+use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\ResourceTile\FishTile;
 use App\Map\Tile\Tile;
@@ -10,9 +10,8 @@ use App\Map\Tile\Tile;
 final readonly class FishLayer implements Layer
 {
     public function __construct(
-        private PerlinGenerator $generator,
+        private Noise $noise,
     ) {}
-
 
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
@@ -20,9 +19,9 @@ final readonly class FishLayer implements Layer
             return $tile;
         }
 
-        $noise = $this->generator->generate($tile->x, $tile->y, 3);
+        $noise = $this->noise->amount(0.02)->generate($tile->x, $tile->y);
 
-        if ($noise < 0.3 || $noise > 0.32) {
+        if ($noise <= 0.0) {
             return $tile;
         }
 

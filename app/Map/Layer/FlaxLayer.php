@@ -3,6 +3,7 @@
 namespace App\Map\Layer;
 
 use App\Map\Biome\PlainsBiome;
+use App\Map\Noise\Noise;
 use App\Map\Noise\PerlinGenerator;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\ResourceTile\FlaxTile;
@@ -11,7 +12,7 @@ use App\Map\Tile\Tile;
 final readonly class FlaxLayer implements Layer
 {
     public function __construct(
-        private PerlinGenerator $generator,
+        private Noise $noise,
     ) {}
 
     public function generate(Tile $tile, BaseLayer $base): Tile
@@ -24,9 +25,9 @@ final readonly class FlaxLayer implements Layer
             return $tile;
         }
 
-        $noise = $this->generator->generate($tile->x, $tile->y, 3);
+        $noise = $this->noise->amount(0.05)->generate($tile->x, $tile->y);
 
-        if ($noise < 0.5 || $noise > 0.6) {
+        if ($noise <= 0.0) {
             return $tile;
         }
 

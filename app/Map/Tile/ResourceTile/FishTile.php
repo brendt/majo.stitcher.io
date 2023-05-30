@@ -13,6 +13,7 @@ use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\SpecialTile\FishingShackTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
@@ -66,18 +67,29 @@ final class FishTile extends BaseTile implements HasResource, HasBorder, Handles
         );
     }
 
-    public function getUpgradePrice(): Price
+    public function canUpgradeTo(MapGame $game): array
     {
-        return new Price(wood: 1);
+        $fishingShackTile = $this->getFishingShackTile($game);
+
+        if ($fishingShackTile) {
+            return [new FishFarmerTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome, $this->noise)];
+        }
+
+        return [];
     }
 
-    public function getUpgradeTile(): Tile
+    private function getFishingShackTile(MapGame $game): ?FishingShackTile
     {
-        return new FishFarmerTile(...(array) $this);
-    }
+        $fishingShackTile = $game->findClosestTo(
+            tile: $this,
+            filter: fn(Tile $tile) => $tile instanceof FishingShackTile,
+            radius: 12,
+        );
 
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
+        if (! $fishingShackTile instanceof FishingShackTile) {
+            return null;
+        }
+
+        return $fishingShackTile;
     }
 }

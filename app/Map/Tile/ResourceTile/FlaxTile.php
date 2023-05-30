@@ -16,7 +16,7 @@ use App\Map\Tile\HasResource;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class FlaxTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable
+final class FlaxTile extends BaseTile implements HasResource, HasBorder, HandlesClick
 {
     public function __construct(
         public readonly int $x,
@@ -66,20 +66,5 @@ final class FlaxTile extends BaseTile implements HasResource, HasBorder, Handles
                 'tile' => $this,
             ],
         );
-    }
-
-    public function getUpgradePrice(): Price
-    {
-        return new Price(wood: 1);
-    }
-
-    public function getUpgradeTile(): Tile
-    {
-        return new FlaxFarmerTile(...(array) $this);
-    }
-
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
     }
 }

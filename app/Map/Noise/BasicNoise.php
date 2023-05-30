@@ -12,43 +12,61 @@ final class BasicNoise implements Noise
     {
         $point = new Point($x, $y);
 
-        $topLeftPoint = $point->move(
-            x: (floor(($point->x - 5) / 10) * 10) + 5,
-            y: (floor(($point->y - 5) / 10) * 10) + 5,
-        );
-
-        $topRightPoint = $point->move(
-            x: (ceil(($point->x - 5) / 10) * 10) + 5,
-            y: (floor(($point->y - 5) / 10) * 10) + 5,
-        );
-
-        $bottomLeftPoint = $point->move(
-            x: (floor(($point->x - 5) / 10) * 10) + 5,
-            y: (ceil(($point->y - 5) / 10) * 10) + 5
-        );
-
-        $bottomRightPoint = $point->move(
-            x: (ceil(($point->x - 5) / 10) * 10) + 5,
-            y: (ceil(($point->y - 5) / 10) * 10) + 5
-        );
-
         $lerp = Lerp::SMOOTHSTEP;
 
-        if (($point->x + 5) % 10 === 0 && ($point->y + 5) % 10 === 0) {
+        if (($point->x) % 10 === 0 && ($point->y) % 10 === 0) {
             $noise = $this->hash($point);
-        } elseif ($topRightPoint->x - $topLeftPoint->x === 0) {
-            $noise = $lerp->generate(
-                $this->hash($topLeftPoint),
-                $this->hash($bottomRightPoint),
-                ($point->y - $topLeftPoint->y) / ($bottomRightPoint->y - $topLeftPoint->y),
+        }
+        elseif ($point->x % 10 === 0) {
+            $topPoint = $point->move(
+                y: (floor($point->y / 10) * 10),
             );
-        } elseif ($bottomLeftPoint->y - $topLeftPoint->y === 0) {
+
+            $bottomPoint = $point->move(
+                y: (ceil($point->y / 10) * 10)
+            );
+
             $noise = $lerp->generate(
-                $this->hash($topLeftPoint),
-                $this->hash($bottomRightPoint),
-                ($point->x - $topLeftPoint->x) / ($bottomRightPoint->x - $topLeftPoint->x),
+                $this->hash($topPoint),
+                $this->hash($bottomPoint),
+                ($point->y - $topPoint->y) / ($bottomPoint->y - $topPoint->y),
+            );
+        }
+        elseif ($point->y % 10 === 0) {
+            $leftPoint = $point->move(
+                x: (floor($point->x / 10) * 10),
+            );
+
+            $rightPoint = $point->move(
+                x: (ceil($point->x / 10) * 10),
+            );
+
+            $noise = $lerp->generate(
+                $this->hash($leftPoint),
+                $this->hash($rightPoint),
+                ($point->x - $leftPoint->x) / ($rightPoint->x - $leftPoint->x),
             );
         } else {
+            $topLeftPoint = $point->move(
+                x: (floor(($point->x) / 10) * 10),
+                y: (floor(($point->y) / 10) * 10),
+            );
+
+            $topRightPoint = $point->move(
+                x: (ceil(($point->x) / 10) * 10),
+                y: (floor(($point->y) / 10) * 10),
+            );
+
+            $bottomLeftPoint = $point->move(
+                x: (floor(($point->x) / 10) * 10),
+                y: (ceil(($point->y) / 10) * 10),
+            );
+
+            $bottomRightPoint = $point->move(
+                x: (ceil(($point->x) / 10) * 10),
+                y: (ceil(($point->y) / 10) * 10),
+            );
+
             $a = $lerp->generate(
                 $this->hash($topLeftPoint),
                 $this->hash($topRightPoint),

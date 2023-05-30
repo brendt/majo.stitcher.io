@@ -3,6 +3,7 @@
 namespace App\Map\Tile\ResourceTile;
 
 use App\Map\Actions\Action;
+use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
@@ -14,10 +15,11 @@ use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\Purchasable;
 use App\Map\Tile\Tile;
-use App\Map\Tile\Upgradable;
+use Exception;
 
-final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick, Upgradable
+final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick, Purchasable
 {
     public function __construct(
         public readonly int $x,
@@ -48,6 +50,14 @@ final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, H
 
     public function handleTick(MapGame $game): Action
     {
+        $goldTile = $this->getGoldTile($game);
+
+        $distance = $this->getPoint()->distanceBetween($goldTile->getPoint());
+
+        if (rand(1, $distance) !== 1) {
+            return new DoNothing();
+        }
+
         return (new UpdateResourceCount(goldCount: 1));
     }
 
@@ -72,18 +82,30 @@ final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, H
         );
     }
 
-    public function getUpgradePrice(): Price
+    public function getName(): string
     {
-        return new Price(wood: 1);
+        return 'GoldFarmerTile';
     }
 
-    public function getUpgradeTile(): Tile
+    public function getPrice(MapGame $game): Price
     {
-        return new GoldFarmerXLTile(...(array) $this);
+        $goldTile = $this->getGoldTile($game);
+
+        return new Price(wood: 10 - $this->getPoint()->distanceBetween($goldTile->getPoint()));
     }
 
-    public function canUpgrade(MapGame $game): bool
+    private function getGoldTile(MapGame $game): GoldTile
     {
-        return true;
+        $goldTile = $game->findClosestTo(
+            tile: $this,
+            filter: fn(Tile $tile) => $tile instanceof GoldTile,
+            radius: 5,
+        );
+
+        if (! $goldTile instanceof GoldTile) {
+            throw new Exception('No gold tile found');
+        }
+
+        return $goldTile;
     }
 }

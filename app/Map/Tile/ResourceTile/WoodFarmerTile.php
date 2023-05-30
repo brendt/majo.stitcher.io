@@ -18,10 +18,11 @@ use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTicks;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\Purchasable;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 
-final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick, Upgradable
+final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTicks, HandlesClick, Purchasable
 {
     public function __construct(
         public readonly int $x,
@@ -93,18 +94,13 @@ final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, H
         );
     }
 
-    public function getUpgradePrice(): Price
+    public function getPrice(MapGame $game): Price
     {
         return new Price(wood: 1);
     }
 
-    public function getUpgradeTile(): Tile
+    public function getName(): string
     {
-        return new WoodFarmerXLTile(...(array) $this);
-    }
-
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
+        return 'WoodFarmerTile';
     }
 }

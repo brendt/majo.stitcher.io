@@ -23,7 +23,7 @@ use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Illuminate\Contracts\View\View;
 
-final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTicks, Upgradable, HasTooltip
+final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTicks, HasTooltip, Upgradable
 {
     public function __construct(
         public readonly int $x,
@@ -34,8 +34,7 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
         public readonly float $noise,
         public WoodTileState $state = WoodTileState::GROWN,
         public int $timeGrowing = 0,
-    ) {
-    }
+    ) {}
 
     public function getResource(): Resource
     {
@@ -57,7 +56,7 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getBorderStyle(): BorderStyle
     {
-        return match($this->state) {
+        return match ($this->state) {
             WoodTileState::GROWN => new BorderStyle('#B66F27DD'),
             WoodTileState::GROWING => new BorderStyle('#B66F2733'),
             WoodTileState::PLANTED => new BorderStyle('#B66F2766'),
@@ -116,28 +115,6 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
         );
     }
 
-    public function getUpgradePrice(): Price
-    {
-        return new Price(wood: 1);
-    }
-
-    public function getUpgradeTile(): Tile
-    {
-        return new WoodFarmerTile(
-            x: $this->x,
-            y: $this->y,
-            temperature: $this->temperature,
-            elevation: $this->elevation,
-            biome: $this->biome,
-            noise: $this->noise,
-        );
-    }
-
-    public function canUpgrade(MapGame $game): bool
-    {
-        return true;
-    }
-
     public function getTooltip(): string
     {
         return <<<HTML
@@ -145,5 +122,19 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
             Tile: Woodtile
         </div>
         HTML;
+    }
+
+    public function canUpgradeTo(MapGame $game): array
+    {
+        return [
+            new WoodFarmerTile(
+                x: $this->x,
+                y: $this->y,
+                temperature: $this->temperature,
+                elevation: $this->elevation,
+                biome: $this->biome,
+                noise: $this->noise,
+            ),
+        ];
     }
 }

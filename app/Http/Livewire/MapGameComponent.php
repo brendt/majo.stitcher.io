@@ -59,10 +59,10 @@ class MapGameComponent extends Component
         $this->emit('update');
     }
 
-    public function upgradeTile(int $x, int $y): void
+    public function upgradeTile(int $x, int $y, string $upgradeTo): void
     {
         MapGame::resolve()
-            ->upgradeTile($x, $y)
+            ->upgradeTile($x, $y, $upgradeTo)
             ->persist();
 
         $this->emit('update');

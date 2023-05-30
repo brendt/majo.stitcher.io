@@ -14,12 +14,12 @@ use App\Map\Layer\FishLayer;
 use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
 use App\Map\Layer\IslandLayer;
-use App\Map\Layer\LandLayer;
 use App\Map\Layer\StoneLayer;
-use App\Map\Layer\TemperatureLayer;
+use App\Map\Layer\ValleyLayer;
 use App\Map\Layer\WoodLayer;
+use App\Map\Noise\BasicNoise;
 use App\Map\Noise\PerlinGenerator;
-use App\Map\Noise\SimplexGenerator;
+use App\Map\Noise\ScatterNoise;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\HandlesClick;
@@ -32,6 +32,7 @@ use App\Map\Tile\SpecialTile\TradingPostTile;
 use App\Map\Tile\SpecialTile\TradingPostXLTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
+use Closure;
 use Generator;
 use Illuminate\Support\Facades\Session;
 
@@ -91,18 +92,25 @@ final class MapGame
     public static function init(int $seed): self
     {
         $perlin = new PerlinGenerator($seed);
+        $basicNoise = new BasicNoise($seed);
+        $scatterNoise = new ScatterNoise($seed);
 
         $baseLayer = (new BaseLayer(width: 100, height: 70))
-            ->add(new ElevationLayer($perlin))
-            ->add(new TemperatureLayer())
-            ->add(new IslandLayer())
+            ->add(new ElevationLayer($basicNoise));
+
+        if ($seed % 3 === 0) {
+            $baseLayer->add(new IslandLayer());
+        } else {
+            $baseLayer->add(new ValleyLayer($basicNoise));
+        }
+
+        $baseLayer
             ->add(new BiomeLayer())
-            ->add(new LandLayer($perlin))
-            ->add(new WoodLayer($perlin))
-            ->add(new StoneLayer($perlin))
-            ->add(new FishLayer($perlin))
-            ->add(new GoldLayer($perlin))
-            ->add(new FlaxLayer($perlin))
+            ->add(new WoodLayer($scatterNoise))
+            ->add(new FlaxLayer($scatterNoise))
+            ->add(new StoneLayer($scatterNoise))
+            ->add(new FishLayer($scatterNoise))
+            ->add(new GoldLayer($scatterNoise))
             ->generate();
 
         $game = new self(
@@ -261,12 +269,36 @@ final class MapGame
         return array_filter($neighbours);
     }
 
+    public function findClosestTo(Tile $tile, Closure $filter, int $radius = 1): ?Tile
+    {
+        $startX = $tile->getX();
+        $startY = $tile->getY();
+
+        for ($r = 1; $r <= $radius; $r++) {
+            for ($x = $startX - $r; $x <= $startX + $r; $x++) {
+                for ($y = $startY - $r; $y <= $startY + $r; $y++) {
+                    $tile = $this->getTile($x, $y);
+
+                    if (! $tile) {
+                        continue;
+                    }
+
+                    if ($filter($tile)) {
+                        return $tile;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public function getTile(int $x, int $y): ?Tile
     {
         return $this->tiles[$x][$y] ?? $this->baseLayer->get($x, $y);
     }
 
-    public function upgradeTile(int $x, int $y): self
+    public function upgradeTile(int $x, int $y, string $upgradeTo): self
     {
         $tile = $this->getTile($x, $y);
 
@@ -274,13 +306,27 @@ final class MapGame
             return $this;
         }
 
-        $price = $tile->getUpgradePrice();
+        $upgradeTile = null;
+
+        foreach ($tile->canUpgradeTo($this) as $canUpgradeTo) {
+            if ($canUpgradeTo->getName() !== $upgradeTo) {
+                continue;
+            }
+
+            $upgradeTile = $canUpgradeTo;
+
+            break;
+        }
+
+        if (! $upgradeTile) {
+            return $this;
+        }
+
+        $price = $upgradeTile->getPrice($this);
 
         if (! $this->canPay($price)) {
             return $this;
         }
-
-        $upgradeTile = $tile->getUpgradeTile();
 
         $this->pay($price);
         $this->setTile($tile->x, $tile->y, $upgradeTile);
@@ -380,7 +426,7 @@ final class MapGame
 
     public function toArray(): array
     {
-        $class= [];
+        $class = [];
 
         if ($this->selectedItem) {
             $class[] = 'clickable-LandTile';

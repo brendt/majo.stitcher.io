@@ -2,7 +2,9 @@
 
 namespace App\Map\Tile\GenericTile;
 
-final class WaterTile extends BaseTile
+use App\Map\Tile\HasTooltip;
+
+final class WaterTile extends BaseTile implements HasTooltip
 {
     public static function fromBase(BaseTile $tile): self
     {
@@ -11,16 +13,24 @@ final class WaterTile extends BaseTile
 
     public function getColor(): string
     {
-        $elevation = $this->elevation;
+        return $this->getBiome()->getTileColor($this);
+    }
 
-        while ($elevation < 0.25) {
-            $elevation += 0.01;
-        }
+    public function getTooltip(): string
+    {
+        $class = static::class;
+        $biome = $this->getBiome()::class;
 
-        $r = hex($elevation / 3);
-        $g = hex($elevation / 3);
-        $b = hex($elevation);
-
-        return "#{$r}{$g}{$b}";
+        return <<<HTML
+        <div class="debug menu">
+            Temperature: {$this->temperature}
+            <br>
+            Elevation: {$this->elevation}
+            <br>
+            Tile: {$class}
+            <br>
+            Biome: {$biome}
+        </div>
+        HTML;
     }
 }

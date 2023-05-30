@@ -2,10 +2,11 @@
 
 namespace App\Map\Layer;
 
-use App\Map\Biome\DesertBiome;
 use App\Map\Biome\ForestBiome;
+use App\Map\Biome\MountainBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Noise\Noise;
+use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
@@ -32,14 +33,18 @@ final readonly class WoodLayer implements Layer
             return $this->plainsTile($tile);
         }
 
+        if ($biome instanceof MountainBiome) {
+            return $this->mountainTile($tile);
+        }
+
         return $tile;
     }
 
-    private function forestTile(Tile $tile): Tile
+    private function forestTile(BaseTile $tile): Tile
     {
-        $noise = $this->noise->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.1)->generate($tile->x, $tile->y);
 
-        if ($noise < 0) {
+        if ($noise <= 0.0) {
             return $tile;
         }
 
@@ -49,15 +54,15 @@ final readonly class WoodLayer implements Layer
             temperature: $tile->temperature,
             elevation: $tile->elevation,
             biome: $tile->biome,
-            noise: $noise,
+            noise: $tile->elevation * $noise,
         );
     }
 
     private function plainsTile(Tile $tile): Tile
     {
-        $noise = $this->noise->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.006)->generate($tile->x, $tile->y);
 
-        if ($noise < 0.7 || $noise > 0.8) {
+        if ($noise <= 0.0) {
             return $tile;
         }
 
@@ -67,7 +72,29 @@ final readonly class WoodLayer implements Layer
             temperature: $tile->temperature,
             elevation: $tile->elevation,
             biome: $tile->biome,
-            noise: $noise,
+            noise: $tile->elevation * $noise,
+        );
+    }
+
+    private function mountainTile(BaseTile $tile): Tile
+    {
+        $noise = $this->noise->amount(0.2)->generate($tile->x, $tile->y);
+
+        if ($noise <= 0.0) {
+            return $tile;
+        }
+
+        if ($tile->elevation > 0.85) {
+            return $tile;
+        }
+
+        return new WoodTile(
+            x: $tile->x,
+            y: $tile->y,
+            temperature: $tile->temperature,
+            elevation: $tile->elevation,
+            biome: $tile->biome,
+            noise: 1 - $tile->elevation * $noise,
         );
     }
 }

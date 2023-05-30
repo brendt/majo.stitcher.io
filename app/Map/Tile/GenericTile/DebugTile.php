@@ -28,6 +28,15 @@ final readonly class DebugTile implements Tile, HasTooltip
         }
 
         return "#{$hex}{$hex}{$hex}";
+
+//        $hexFromNoise = hex($this->noise);
+//
+//        $color = match(true) {
+//            $this->noise < 0.6 => "#0000{$hexFromNoise}",
+//            default => "#00{$hexFromNoise}00",
+//        };
+//
+//        return $color;
     }
 
     public function getBiome(): ?Biome

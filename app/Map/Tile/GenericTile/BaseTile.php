@@ -15,7 +15,7 @@ use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Spatie\Cloneable\Cloneable;
 
-class BaseTile implements Tile
+class BaseTile implements Tile, HasTooltip
 {
     use Cloneable;
 
@@ -43,7 +43,7 @@ class BaseTile implements Tile
         }
 
         if ($this instanceof Upgradable) {
-            return $this->canUpgrade($game);
+            return $this->canUpgradeTo($game) !== [];
         }
 
         if ($this instanceof HasMenu) {
@@ -142,5 +142,24 @@ class BaseTile implements Tile
     public function getPoint(): Point
     {
         return new Point($this->getX(), $this->getY());
+    }
+
+    public function getTooltip(): string
+    {
+        $class = static::class;
+
+        $biome = $this->getBiome() ? $this->getBiome()::class : '';
+
+        return <<<HTML
+        <div class="debug menu">
+            Temperature: {$this->temperature}
+            <br>
+            Elevation: {$this->elevation}
+            <br>
+            Tile: {$class}
+            <br>
+            Biome: {$biome}
+        </div>
+        HTML;
     }
 }
