@@ -36,9 +36,6 @@ final class MapPreviewController
             ->add(new DebugLayer($basicNoise))
             ->generate();
 
-//        $baseLayer = (new BaseLayer(width: 150, height: 100))
-//            ->add(new ElevationLayer($basicNoise));
-//
 //        if ($seed % 3 === 0) {
 //            $baseLayer->add(new IslandLayer());
 //        } else {

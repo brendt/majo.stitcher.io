@@ -9,7 +9,7 @@
 
     <style>
         :root {
-            --tile-size: 10px;
+            --tile-size: 8px;
             --tile-border-color: none;
             --tile-border-width: 0px;
             --tile-gap: 0;

@@ -15,11 +15,11 @@ final readonly class DebugLayer implements Layer
 
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
-//        return new DebugTile(
-//            x: $tile->getX(),
-//            y: $tile->getY(),
-//            noise: $this->noise->generate($tile->getX(), $tile->getY()),
-//        );
+        return new DebugTile(
+            x: $tile->getX(),
+            y: $tile->getY(),
+            noise: $this->noise->generate($tile->getX(), $tile->getY()),
+        );
 
         $point = $tile->getPoint();
 
