@@ -248,6 +248,10 @@ final class Board
             }
         }
 
+        if (empty($tileWithOpenMatch)) {
+            return $this;
+        }
+
         $matchingTile = null;
 
         foreach ($this->loop() as $tile) {
@@ -258,6 +262,10 @@ final class Board
                 $matchingTile = $tile;
                 break;
             }
+        }
+
+        if (empty($matchingTile)) {
+            return $this;
         }
 
         $tileWithOpenMatch->state = TileState::HIGHLIGHTED;
