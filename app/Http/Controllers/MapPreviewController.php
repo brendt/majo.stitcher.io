@@ -32,7 +32,7 @@ final class MapPreviewController
         $basicNoise = new BasicNoise($seed);
         $scatterNoise = new ScatterNoise($seed);
 
-        $baseLayer = (new BaseLayer(150, 100))
+        $baseLayer = (new BaseLayer(100, 100))
             ->add(new DebugLayer($basicNoise))
             ->generate();
 

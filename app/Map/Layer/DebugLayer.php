@@ -2,150 +2,107 @@
 
 namespace App\Map\Layer;
 
+use App\Map\Noise\Lerp;
 use App\Map\Noise\Noise;
 use App\Map\Point;
 use App\Map\Tile\GenericTile\DebugTile;
 use App\Map\Tile\Tile;
+use App\Map\Vector;
 
 final readonly class DebugLayer implements Layer
 {
+    private int $seed;
+
     public function __construct(
         private Noise $noise,
-    ) {}
+    )
+    {
+        $this->seed = request()->get('seed', 123);
+    }
 
     public function generate(Tile $tile, BaseLayer $base): Tile
     {
-        return new DebugTile(
-            x: $tile->getX(),
-            y: $tile->getY(),
-            noise: $this->noise->generate($tile->getX(), $tile->getY()),
-        );
-
         $point = $tile->getPoint();
 
+        $x0 = floor($point->x / 10) * 10;
+        $x1 = $x0 + 10;
+        $y0 = floor($point->y / 10) * 10;
+        $y1 = $y0 + 10;
+
+        $fractionX = ($point->x - $x0) / ($x1 - $x0);
+        $fractionY = ($point->y - $y0) / ($y1 - $y0);
+
+        $n0 = $this->dotGradient(
+            new Point($x0, $y0),
+            $point,
+        );
+
+        $n1 = $this->dotGradient(
+            new Point($x1, $y0),
+            $point,
+        );
+
+        $ix0 = Lerp::DEFAULT->generate($n0, $n1, $fractionX);
+
+        $n0 = $this->dotGradient(
+            new Point($x0, $y1),
+            $point,
+        );
+
+        $n1 = $this->dotGradient(
+            new Point($x1, $y1),
+            $point,
+        );
+
+        $ix1 = Lerp::DEFAULT->generate($n0, $n1, $fractionX);
+
+        $noise = abs(Lerp::DEFAULT->generate($ix0, $ix1, $fractionY));
+
         return new DebugTile(
             x: $tile->getX(),
             y: $tile->getY(),
-            noise: $this->baseNoise($point) * $this->circularNoise(150, 100, $point),
+            noise: $noise,
+            debug: [
+                'grad' => $this->gradient($point),
+                'x0' => $x0,
+                'y0' => $y0,
+                'x1' => $x1,
+                'y1' => $y1,
+                'fractionX' => $fractionX,
+                'fractionY' => $fractionY,
+            ]
         );
     }
 
-    private function circularNoise(int $totalWidth, int $totalHeight, Point $point): float
+    private function dotGradient(Point $a, Point $b): float
     {
-        $middleX = $totalWidth / 2;
-        $middleY = $totalHeight / 2;
+        $gradient = $this->gradient($a);
 
-        $distanceFromMiddle = sqrt(
-            pow(($point->x - $middleX), 2)
-            + pow(($point->y - $middleY), 2)
-        );
+        $distanceX = $b->x - $a->x;
+        $distanceY = $b->y - $a->y;
 
-        $maxDistanceFromMiddle = sqrt(
-            pow(($totalWidth - $middleX), 2)
-            + pow(($totalHeight - $middleY), 2)
-        );
-
-        return 1 - ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.3;
+        return ($distanceX * $gradient->a) + ($distanceY * $gradient->b);
     }
 
-    private function hash(Point $point): float
+    private function gradient(Point $point): Vector
     {
-        $baseX = ceil($point->x / 10);
-        $baseY = ceil($point->y / 10);
+        $input = $this->seed * $point->x * $point->y;
 
-        $hash = bin2hex(
-            hash(
-                algo: 'xxh32',
-                data: request()->get('seed', 123) * $baseX * $baseY,
-            )
+        $a = bin2hex(hash(
+            algo: 'xxh32',
+            data: $input,
+        ));
+
+        $b = bin2hex(hash(
+            algo: 'xxh32',
+            data: $input * 2,
+        ));
+
+        $base = 9999999999999999;
+
+        return new Vector(
+            $a / $base,
+            $b / $base,
         );
-
-        $hash = floatval('0.' . $hash);
-
-        return sqrt($hash);
-    }
-
-    /**
-     * @param Point $point
-     * @return float
-     */
-    public function baseNoise(Point $point): float
-    {
-        $noise = 0;
-
-        if ($point->x % 10 === 0 && $point->y % 10 === 0) {
-            $noise = $this->hash($point);
-        } elseif ($point->x % 10 === 0) {
-            $topPoint = new Point(
-                x: $point->x,
-                y: (floor($point->y / 10) * 10),
-            );
-
-            $bottomPoint = new Point(
-                x: $point->x,
-                y: (ceil($point->y / 10) * 10)
-            );
-
-            $noise = smooth(
-                $this->hash($topPoint),
-                $this->hash($bottomPoint),
-                ($point->y - $topPoint->y) / ($bottomPoint->y - $topPoint->y),
-            );
-        } elseif ($point->y % 10 === 0) {
-            $leftPoint = new Point(
-                x: (floor($point->x / 10) * 10),
-                y: $point->y,
-            );
-
-            $rightPoint = new Point(
-                x: (ceil($point->x / 10) * 10),
-                y: $point->y,
-            );
-
-            $noise = smooth(
-                $this->hash($leftPoint),
-                $this->hash($rightPoint),
-                ($point->x - $leftPoint->x) / ($rightPoint->x - $leftPoint->x),
-            );
-        } else {
-            $topLeftPoint = new Point(
-                x: (floor($point->x / 10) * 10),
-                y: (floor($point->y / 10) * 10),
-            );
-
-            $topRightPoint = new Point(
-                x: (ceil($point->x / 10) * 10),
-                y: (floor($point->y / 10) * 10),
-            );
-
-            $bottomLeftPoint = new Point(
-                x: (floor($point->x / 10) * 10),
-                y: (ceil($point->y / 10) * 10)
-            );
-
-            $bottomRightPoint = new Point(
-                x: (ceil($point->x / 10) * 10),
-                y: (ceil($point->y / 10) * 10)
-            );
-
-            $a = smooth(
-                $this->hash($topLeftPoint),
-                $this->hash($topRightPoint),
-                ($point->x - $topLeftPoint->x) / ($topRightPoint->x - $topLeftPoint->x),
-            );
-
-            $b = smooth(
-                $this->hash($bottomLeftPoint),
-                $this->hash($bottomRightPoint),
-                ($point->x - $bottomLeftPoint->x) / ($bottomRightPoint->x - $bottomLeftPoint->x),
-            );
-
-            $noise = smooth(
-                $a,
-                $b,
-                ($point->y - $topLeftPoint->y) / ($bottomLeftPoint->y - $topLeftPoint->y),
-            );
-        }
-        return $noise;
     }
 }
