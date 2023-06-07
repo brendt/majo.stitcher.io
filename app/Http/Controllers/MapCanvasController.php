@@ -25,9 +25,9 @@ final class MapCanvasController
     {
         $seed = request()->get('seed', random_int(1, 1_000_000));
 
-        $width = 75;
-        $height = 75;
-        $pixelSize = 20;
+        $width = 150;
+        $height = 100;
+        $pixelSize = 10;
 
 //        $baseLayer = (new BaseLayer($width, $height))
 //            ->add(new DebugLayer($basicNoise))
