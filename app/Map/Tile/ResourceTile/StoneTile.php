@@ -6,27 +6,20 @@ use App\Map\Actions\Action;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
-use App\Map\Menu;
-use App\Map\Price;
-use App\Map\Tile\BorderStyle;
+use App\Map\Point;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
 use App\Map\Tile\HasTooltip;
-use App\Map\Tile\Tile;
-use App\Map\Tile\Upgradable;
-use Illuminate\Contracts\View\View;
+use App\Map\Tile\Style\BorderStyle;
 
 final class StoneTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HasTooltip
 {
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature,
-        public readonly ?float $elevation,
-        public readonly ?Biome $biome,
-        public readonly float $noise,
+        public readonly Point $point,
+        public readonly float $elevation,
+        public readonly Biome $biome,
     ) {}
 
     public function getResource(): Resource
@@ -36,7 +29,7 @@ final class StoneTile extends BaseTile implements HasResource, HasBorder, Handle
 
     public function getColor(): string
     {
-        $value = $this->noise;
+        $value = $this->elevation;
 
         while ($value > 0.8) {
             $value -= 0.3;
@@ -55,17 +48,6 @@ final class StoneTile extends BaseTile implements HasResource, HasBorder, Handle
     public function handleClick(MapGame $game): Action
     {
         return new UpdateResourceCount(stoneCount: 1);
-    }
-
-    public function getMenu(): Menu
-    {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'menu.upgrade',
-            viewData: [
-                'tile' => $this,
-            ],
-        );
     }
 
     public function getTooltip(): string

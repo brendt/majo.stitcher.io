@@ -29,13 +29,13 @@ final class MapCanvasController
         $height = 100;
         $pixelSize = 10;
 
+        $basicNoise = new BasicNoise($seed);
+        $scatterNoise = new ScatterNoise($seed);
+
 //        $baseLayer = (new BaseLayer($width, $height))
 //            ->add(new DebugLayer($basicNoise))
 //            ->generate();
 
-
-        $basicNoise = new BasicNoise($seed);
-        $scatterNoise = new ScatterNoise($seed);
 
         $baseLayer = (new BaseLayer($width, $height))
             ->add(new ElevationLayer($basicNoise))

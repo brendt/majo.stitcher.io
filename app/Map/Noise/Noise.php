@@ -2,7 +2,9 @@
 
 namespace App\Map\Noise;
 
+use App\Map\Point;
+
 interface Noise
 {
-    public function generate(int $x, int $y, int $iterations = 64): float|int;
+    public function generate(Point $point, int $iterations = 64): float|int;
 }

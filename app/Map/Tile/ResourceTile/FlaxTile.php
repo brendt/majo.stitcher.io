@@ -7,24 +7,19 @@ use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
-use App\Map\Price;
-use App\Map\Tile\BorderStyle;
+use App\Map\Point;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
-use App\Map\Tile\Tile;
-use App\Map\Tile\Upgradable;
+use App\Map\Tile\Style\BorderStyle;
 
 final class FlaxTile extends BaseTile implements HasResource, HasBorder, HandlesClick
 {
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature,
-        public readonly ?float $elevation,
-        public readonly ?Biome $biome,
-        public readonly float $noise,
+        public readonly Point $point,
+        public readonly float $elevation,
+        public readonly Biome $biome,
     ) {}
 
     public function getResource(): Resource
@@ -34,7 +29,7 @@ final class FlaxTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getColor(): string
     {
-        $value = $this->noise;
+        $value = $this->elevation;
 
         while ($value < 0.6) {
             $value += 0.1;
@@ -55,16 +50,5 @@ final class FlaxTile extends BaseTile implements HasResource, HasBorder, Handles
     public function handleClick(MapGame $game): Action
     {
         return new UpdateResourceCount(flaxCount: 1);
-    }
-
-    public function getMenu(): Menu
-    {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'menu.upgrade',
-            viewData: [
-                'tile' => $this,
-            ],
-        );
     }
 }

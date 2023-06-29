@@ -211,13 +211,13 @@
                     {!! $tile->getStyle($game)->class !!}
                 "
              style="
-                    grid-area: {{ $tile->y }} / {{ $tile->x }} / {{ $tile->y }} / {{ $tile->x }};
+                    grid-area: {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }} / {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }};
                     {!! $tile->getStyle($game)->style !!}
                 "
              x-on:click="
                     window.metaDown
-                        ? Livewire.emit('handleMetaClick', {{ $tile->x }}, {{ $tile->y }})
-                        : Livewire.emit('handleClick', {{ $tile->x }}, {{ $tile->y }})
+                        ? Livewire.emit('handleMetaClick', {{ $tile->getPoint()->x }}, {{ $tile->getPoint()->y }})
+                        : Livewire.emit('handleClick', {{ $tile->getPoint()->x }}, {{ $tile->getPoint()->y }})
                 "
         >
             @if($tile instanceof \App\Map\Tile\HasTooltip)

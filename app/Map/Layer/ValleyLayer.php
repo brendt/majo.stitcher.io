@@ -6,11 +6,11 @@ use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 
-final readonly class ValleyLayer implements Layer
+final readonly class ValleyLayer
 {
     public function __construct(private Noise $noise) {}
 
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __invoke(Tile $tile, BaseLayer $base): Tile
     {
         if (! $tile instanceof BaseTile) {
             return $tile;
@@ -20,8 +20,8 @@ final readonly class ValleyLayer implements Layer
         $middleY = $base->height / 2;
 
         $distanceFromMiddle = sqrt(
-            pow(($tile->x - $middleX), 2)
-            + pow(($tile->y - $middleY), 2)
+            pow(($tile->getPoint()->x - $middleX), 2)
+            + pow(($tile->getPoint()->y - $middleY), 2)
         );
 
         $maxDistanceFromMiddle = sqrt(

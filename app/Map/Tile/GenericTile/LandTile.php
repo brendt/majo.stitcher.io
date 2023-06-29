@@ -6,6 +6,7 @@ use App\Map\Biome\BeachBiome;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
+use App\Map\Point;
 use App\Map\Tile\HasTooltip;
 use App\Map\Tile\ResourceTile\GoldFarmerTile;
 use App\Map\Tile\ResourceTile\GoldTile;
@@ -16,17 +17,10 @@ use App\Map\Tile\Upgradable;
 final class LandTile extends BaseTile implements HasTooltip, Upgradable
 {
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature,
-        public readonly ?float $elevation,
-        public readonly ?Biome $biome,
+        public readonly Point $point,
+        public readonly float $elevation,
+        public readonly Biome $biome,
     ) {}
-
-    public static function fromBase(BaseTile $tile): self
-    {
-        return new self(...(array)$tile);
-    }
 
     public function getColor(): string
     {
@@ -47,19 +41,19 @@ final class LandTile extends BaseTile implements HasTooltip, Upgradable
         $canUpgradeTo = [];
 
         if ($this->getBiome() instanceof BeachBiome) {
-            $canUpgradeTo[] = new FishingShackTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome);
+            $canUpgradeTo[] = new FishingShackTile($this->point);
         }
 
         foreach ($game->getNeighbours($this) as $neighbour) {
             if ($neighbour instanceof WaterTile) {
-                $canUpgradeTo[] = new TradingPostTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome);
+                $canUpgradeTo[] = new TradingPostTile($this->point);
                 break;
             }
         }
 
         foreach ($game->getNeighbours($this, 5) as $neighbour) {
             if ($neighbour instanceof GoldTile) {
-                $canUpgradeTo[] = new GoldFarmerTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome, $this->elevation);
+                $canUpgradeTo[] = new GoldFarmerTile($this->point, $this->elevation, $this->biome);
                 break;
             }
         }

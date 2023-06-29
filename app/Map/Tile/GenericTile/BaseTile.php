@@ -3,29 +3,26 @@
 namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
+use App\Map\Biome\DebugBiome;
 use App\Map\Inventory\ItemForTile;
 use App\Map\MapGame;
 use App\Map\Point;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;
-use App\Map\Tile\HasTooltip;
-use App\Map\Tile\Style;
+use App\Map\Tile\Style\Style;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Spatie\Cloneable\Cloneable;
 
-class BaseTile implements Tile, HasTooltip
+class BaseTile implements Tile
 {
     use Cloneable;
 
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature = null,
-        public readonly ?float $elevation = null,
-        public readonly ?Biome $biome = null,
-    ) {}
+        public readonly Point $point,
+    ) {
+    }
 
     public function getColor(): string
     {
@@ -61,10 +58,12 @@ class BaseTile implements Tile, HasTooltip
         $borderColor = $borderStyle->color ?? '';
         $clickable = $this->isClickable($game);
         $slug = $this->getSlug();
+        $x = $this->getPoint()->x;
+        $y = $this->getPoint()->y;
 
         return new Style(
             style: <<<EOF
-            grid-area: $this->y / $this->x / $this->y / $this->x;
+            grid-area: $y / $x / $y / $x;
             --tile-color: $backgroundColor;
             --tile-border-width: {$borderWidth}px;
             --tile-border-color: {$borderColor};
@@ -101,19 +100,9 @@ class BaseTile implements Tile, HasTooltip
         );
     }
 
-    public function getBiome(): ?Biome
+    public function getBiome(): Biome
     {
-        return $this->biome;
-    }
-
-    public function getX(): int
-    {
-        return $this->x ?? dd($this);
-    }
-
-    public function getY(): int
-    {
-        return $this->y;
+        return $this->biome ?? new DebugBiome();
     }
 
     public function getSlug(): string
@@ -128,20 +117,20 @@ class BaseTile implements Tile, HasTooltip
     public function toArray(MapGame $game): array
     {
         return [
-            'x' => $this->x,
-            'y' => $this->y,
-            'style' => (array) $this->getStyle($game),
+            'x' => $this->getPoint()->x,
+            'y' => $this->getPoint()->y,
+            'style' => (array)$this->getStyle($game),
             'name' => $this::class,
             'biome' => $this->getBiome() ? $this->getBiome()::class : null,
             'elevation' => $this->elevation,
             'temperature' => $this->temperature,
-            'tooltip' => $this instanceof HasTooltip ? $this->getTooltip() : '',
+            'tooltip' => $this->getTooltip(),
         ];
     }
 
     public function getPoint(): Point
     {
-        return new Point($this->getX(), $this->getY());
+        return $this->point;
     }
 
     public function getTooltip(): string
@@ -152,10 +141,6 @@ class BaseTile implements Tile, HasTooltip
 
         return <<<HTML
         <div class="debug menu">
-            Temperature: {$this->temperature}
-            <br>
-            Elevation: {$this->elevation}
-            <br>
             Tile: {$class}
             <br>
             Biome: {$biome}

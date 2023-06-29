@@ -8,18 +8,16 @@ use App\Map\Actions\UpdateResourceCount;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Price;
-use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;
 use App\Map\Tile\Purchasable;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
-use App\Map\Tile\Tile;
-use App\Map\Tile\Upgradable;
+use App\Map\Tile\Style\BorderStyle;
 
-final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, HandlesTicks, HasBorder, Purchasable
+final class TradingPostTile extends BaseTile implements HasMenu, SavesMenu, HandlesTick, HasBorder, Purchasable
 {
     public ?Resource $input = null;
 

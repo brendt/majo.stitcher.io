@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Map\Tile;
+namespace App\Map\Tile\Style;
 
 final readonly class BorderStyle
 {

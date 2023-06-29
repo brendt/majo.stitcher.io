@@ -5,11 +5,11 @@ namespace App\Map\Layer;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 
-final readonly class TemperatureLayer implements Layer
+final readonly class TemperatureLayer
 {
     public function __construct() {}
 
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __invoke(Tile $tile): Tile
     {
         if (! $tile instanceof BaseTile) {
             return $tile;

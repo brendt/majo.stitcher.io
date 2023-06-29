@@ -3,37 +3,70 @@
 namespace App\Map\Layer;
 
 use App\Map\Biome\BeachBiome;
-use App\Map\Biome\Biome;
-use App\Map\Biome\DesertBiome;
 use App\Map\Biome\ForestBiome;
 use App\Map\Biome\MountainBiome;
 use App\Map\Biome\PlainsBiome;
 use App\Map\Biome\SeaBiome;
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\Tile;
 
-final readonly class BiomeLayer implements Layer
+final readonly class BiomeLayer
 {
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __construct(
+        private Noise $generator
+    ) {}
+
+    public function __invoke(Tile $tile, BaseLayer $base): Tile
     {
-        if (! $tile instanceof BaseTile) {
-            return $tile;
-        }
+        $elevation = $this->elevation(
+            tile: $tile,
+            base: $base
+        );
 
         $biome = match (true) {
-            $tile->elevation < 0.4 => new SeaBiome(),
-            $tile->elevation >= 0.4 && $tile->elevation < 0.44 => new BeachBiome(),
-            $tile->elevation >= 0.44 && $tile->elevation < 0.6 => new PlainsBiome(),
-            $tile->elevation >= 0.6 && $tile->elevation < 0.8 => new ForestBiome(),
-            $tile->elevation >= 0.8 => new MountainBiome(),
+            $elevation < 0.4 => new SeaBiome(),
+            $elevation >= 0.4 && $elevation < 0.44 => new BeachBiome(),
+            $elevation >= 0.44 && $elevation < 0.6 => new PlainsBiome(),
+            $elevation >= 0.6 && $elevation < 0.8 => new ForestBiome(),
+            $elevation >= 0.8 => new MountainBiome(),
         };
 
-        $tile = $tile->setBiome($biome);
+        return $elevation < 0.4
+            ? new WaterTile(
+                point: $tile->getPoint(),
+                elevation: $elevation,
+                biome: $biome,
+            )
+            : new LandTile(
+                point: $tile->getPoint(),
+                elevation: $elevation,
+                biome: $biome,
+            );
+    }
 
-        return $tile->elevation < 0.4
-            ? WaterTile::fromBase($tile)
-            : LandTile::fromBase($tile);
+    private function elevation(Tile $tile, BaseLayer $base): float
+    {
+        $currentElevation = $this->generator->generate($tile->getPoint());
+
+//        return $currentElevation;
+
+        $middleX = $base->width / 2;
+        $middleY = $base->height / 2;
+
+        $distanceFromMiddle = sqrt(
+            pow(($tile->getPoint()->x - $middleX), 2)
+            + pow(($tile->getPoint()->y - $middleY), 2)
+        );
+
+        $maxDistanceFromMiddle = sqrt(
+            pow(($base->width - $middleX), 2)
+            + pow(($base->height - $middleY), 2)
+        );
+
+        $newElevation = 1 - ($distanceFromMiddle / $maxDistanceFromMiddle) + 0.2;
+
+        return $currentElevation * $newElevation;
     }
 }

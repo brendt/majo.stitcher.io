@@ -8,6 +8,8 @@ namespace App\Map\Noise;
 // Originally from http://therandomuniverse.blogspot.com/2007/01/perlin-noise-your-new-best-friend.html
 // but the site appears to be down, so here is a mirror of it: https://gist.github.com/story75/d8cc01a1b826a3df9102#file-perlin-php-L31
 
+use App\Map\Point;
+
 class PerlinGenerator implements Noise
 {
     public array $p;
@@ -47,8 +49,10 @@ class PerlinGenerator implements Noise
         $this->seed = $seed ?? time();
     }
 
-    function generate(int $x, int $y, int $iterations = 64): float|int
+    function generate(Point $point, int $iterations = 64): float|int
     {
+        $x = $point->x;
+        $y = $point->y;
         $z = 0;
 
         if ($iterations == null) {

@@ -6,24 +6,15 @@ use App\Map\Noise\Noise;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\Tile;
 
-final readonly class ElevationLayer implements Layer
+final readonly class ElevationLayer
 {
     public function __construct(
         private Noise $generator
     ) {}
 
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __invoke(BaseTile $tile): Tile
     {
-        if (! $tile instanceof BaseTile) {
-            return $tile;
-        }
-
-        $elevation = $this->generator->generate(
-            $tile->x,
-            $tile->y,
-        );
-
-//        $elevation = ($elevation / 2) + .5;
+        $elevation = $this->generator->generate($tile->getPoint());
 
         return $tile
             ->setElevation($elevation)

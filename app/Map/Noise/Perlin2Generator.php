@@ -2,6 +2,8 @@
 
 namespace App\Map\Noise;
 
+use App\Map\Point;
+
 final class Perlin2Generator implements Noise
 {
     private const HASH = [208, 34, 231, 213, 32, 248, 233, 56, 161, 78, 24, 140, 71, 48, 140, 254, 245, 255, 247, 247, 40,
@@ -22,12 +24,11 @@ final class Perlin2Generator implements Noise
     public function __construct(private int $seed, private int $width, private int $height) {}
 
     public function generate(
-        int $x,
-        int $y,
+        Point $point,
         int $iterations = 10,
     ): float {
-        $x = $x / $this->width;
-        $y = $y / $this->height;
+        $x = $point->x / $this->width;
+        $y = $point->y / $this->height;
 
         $xa = $x * self::FREQ;
         $ya = $y * self::FREQ;

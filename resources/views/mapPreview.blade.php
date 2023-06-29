@@ -158,11 +158,9 @@
 >
     @foreach ($board as $row)
         @foreach($row as $tile)
-            <div class="
-                        tile
-                    "
+            <div class="tile"
                  style="
-                        grid-area: {{ $tile->y }} / {{ $tile->x }} / {{ $tile->y }} / {{ $tile->x }};
+                        grid-area: {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }} / {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }};
                         --tile-color: {{ $tile->getColor() }};
                     "
             >

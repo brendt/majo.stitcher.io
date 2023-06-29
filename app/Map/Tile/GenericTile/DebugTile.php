@@ -3,18 +3,16 @@
 namespace App\Map\Tile\GenericTile;
 
 use App\Map\Biome\Biome;
+use App\Map\Biome\PlainsBiome;
 use App\Map\MapGame;
 use App\Map\Point;
-use App\Map\Tile\HasTooltip;
-use App\Map\Tile\Style;
+use App\Map\Tile\Style\Style;
 use App\Map\Tile\Tile;
 
-final readonly class DebugTile implements Tile, HasTooltip
+final readonly class DebugTile implements Tile
 {
-
     public function __construct(
-        public int $x,
-        public int $y,
+        public Point $point,
         public float $noise,
         public array $debug = [],
     ) {}
@@ -39,19 +37,9 @@ final readonly class DebugTile implements Tile, HasTooltip
 //        return $color;
     }
 
-    public function getBiome(): ?Biome
+    public function getBiome(): Biome
     {
-        return null;
-    }
-
-    public function getX(): int
-    {
-        $this->x;
-    }
-
-    public function getY(): int
-    {
-        $this->y;
+        return new PlainsBiome();
     }
 
     public function getStyle(MapGame $game): Style
@@ -83,6 +71,6 @@ final readonly class DebugTile implements Tile, HasTooltip
 
     public function getPoint(): Point
     {
-        return new Point($this->getX(), $this->getY());
+        return $this->point;
     }
 }

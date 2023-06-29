@@ -2,16 +2,18 @@
 
 namespace App\Map\Layer;
 
-
+use App\Map\Point;
 use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\Tile;
 use Generator;
+use TypeError;
 
 final class BaseLayer
 {
-    /** @var \App\Map\Layer\Layer[] */
+    /** @var callable[] */
     private array $pendingLayers = [];
 
-    /** @var \App\Map\Tile\Tile[][] */
+    /** @var Tile[][] */
     private array $board = [];
 
     public function __construct(
@@ -23,10 +25,16 @@ final class BaseLayer
     {
         for ($x = 0; $x < $this->width; $x++) {
             for ($y = 0; $y < $this->height; $y++) {
-                $tile = $this->board[$x][$y] ?? new BaseTile($x, $y);
+                $point = new Point($x, $y);
+
+                $tile = $this->get($point) ?? new BaseTile($point);
 
                 foreach ($this->pendingLayers as $layer) {
-                    $tile = $layer->generate($tile, $this);
+                    try {
+                        $tile = $layer($tile, $this);
+                    } catch (TypeError) {
+                        continue;
+                    }
                 }
 
                 $this->board[$x][$y] = $tile;
@@ -39,24 +47,24 @@ final class BaseLayer
     }
 
     /**
-     * @return \App\Map\Tile\Tile[][]
+     * @return Tile[][]
      */
     public function getBoard(): array
     {
         return $this->board;
     }
 
-    public function get(int $x, int $y): ?object
+    public function get(Point $point): ?object
     {
-        return $this->board[$x][$y] ?? null;
+        return $this->board[$point->x][$point->y] ?? null;
     }
 
-    public function remove(int $x, int $y): void
+    public function remove(Point $point): void
     {
-        unset($this->board[$x][$y]);
+        unset($this->board[$point->x][$point->y]);
     }
 
-    public function add(Layer $layer): self
+    public function add(callable $layer): self
     {
         $this->pendingLayers[] = $layer;
 

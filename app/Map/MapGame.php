@@ -2,7 +2,6 @@
 
 namespace App\Map;
 
-use App\Map\Actions\UpdateResourceCount;
 use App\Map\Inventory\Inventory;
 use App\Map\Inventory\Item;
 use App\Map\Inventory\Item\Seed;
@@ -15,21 +14,17 @@ use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
 use App\Map\Layer\IslandLayer;
 use App\Map\Layer\StoneLayer;
-use App\Map\Layer\ValleyLayer;
 use App\Map\Layer\WoodLayer;
 use App\Map\Noise\BasicNoise;
-use App\Map\Noise\PerlinGenerator;
 use App\Map\Noise\ScatterNoise;
 use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\HandlesClick;
-use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasMenu;
-use App\Map\Tile\HasResource;
+use App\Map\Tile\CalculatesResourcePerTick;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
-use App\Map\Tile\SpecialTile\TradingPostTile;
-use App\Map\Tile\SpecialTile\TradingPostXLTile;
 use App\Map\Tile\Tile;
 use App\Map\Tile\Upgradable;
 use Closure;
@@ -91,21 +86,11 @@ final class MapGame
 
     public static function init(int $seed): self
     {
-        $perlin = new PerlinGenerator($seed);
         $basicNoise = new BasicNoise($seed);
         $scatterNoise = new ScatterNoise($seed);
 
         $baseLayer = (new BaseLayer(width: 100, height: 70))
-            ->add(new ElevationLayer($basicNoise));
-
-        if ($seed % 3 === 0) {
-            $baseLayer->add(new IslandLayer());
-        } else {
-            $baseLayer->add(new ValleyLayer($basicNoise));
-        }
-
-        $baseLayer
-            ->add(new BiomeLayer())
+            ->add(new BiomeLayer($basicNoise))
             ->add(new WoodLayer($scatterNoise))
             ->add(new FlaxLayer($scatterNoise))
             ->add(new StoneLayer($scatterNoise))
@@ -135,9 +120,9 @@ final class MapGame
         return $game;
     }
 
-    public function showMenu(int $x, int $y): self
+    public function showMenu(Point $point): self
     {
-        $tile = $this->getTile($x, $y);
+        $tile = $this->getTile($point);
 
         if ($tile instanceof HasMenu) {
             $this->menu = $tile->getMenu();
@@ -172,9 +157,9 @@ final class MapGame
         return $this;
     }
 
-    public function handleClick(int $x, int $y): self
+    public function handleClick(Point $point): self
     {
-        $tile = $this->getTile($x, $y);
+        $tile = $this->getTile($point);
 
         if ($this->selectedItem instanceof ItemForTile) {
             $this->useItem($this->selectedItem, $tile);
@@ -210,7 +195,7 @@ final class MapGame
         }
 
         foreach ($this->loop() as $tile) {
-            if (! $tile instanceof HandlesTicks) {
+            if (! $tile instanceof HandlesTick) {
                 continue;
             }
 
@@ -228,23 +213,11 @@ final class MapGame
         $count = 0;
 
         foreach ($this->loopOwnTiles() as $tile) {
-            if (! $tile instanceof HandlesTicks) {
+            if (! $tile instanceof CalculatesResourcePerTick) {
                 continue;
             }
 
-            $tickAction = null;
-
-            $tickAction = match (true) {
-                $tile instanceof TradingPostTile, $tile instanceof TradingPostXLTile => $tile->handleTick($this),
-                $tile instanceof HasResource && $tile->getResource() === $resource => $tile->handleTick($this),
-                default => null,
-            };
-
-            if (! $tickAction instanceof UpdateResourceCount) {
-                continue;
-            }
-
-            $count += $tickAction->{$resource->getCountPropertyName()};
+            $count += $tile->getResourcePerTick($this, $resource);
         }
 
         return $count;
@@ -255,14 +228,14 @@ final class MapGame
      */
     public function getNeighbours(Tile $tile, int $radius = 1): array
     {
-        $startX = $tile->getX();
-        $startY = $tile->getY();
+        $startX = $tile->getPoint()->x;
+        $startY = $tile->getPoint()->y;
 
         $neighbours = [];
 
         for ($x = $startX - $radius; $x <= $startX + $radius; $x++) {
             for ($y = $startY - $radius; $y <= $startY + $radius; $y++) {
-                $neighbours[] = $this->getTile($x, $y);
+                $neighbours[] = $this->getTile(new Point($x, $y));
             }
         }
 
@@ -271,13 +244,13 @@ final class MapGame
 
     public function findClosestTo(Tile $tile, Closure $filter, int $radius = 1): ?Tile
     {
-        $startX = $tile->getX();
-        $startY = $tile->getY();
+        $startX = $tile->getPoint()->x;
+        $startY = $tile->getPoint()->y;
 
         for ($r = 1; $r <= $radius; $r++) {
             for ($x = $startX - $r; $x <= $startX + $r; $x++) {
                 for ($y = $startY - $r; $y <= $startY + $r; $y++) {
-                    $tile = $this->getTile($x, $y);
+                    $tile = $this->getTile(new Point($x, $y));
 
                     if (! $tile) {
                         continue;
@@ -293,14 +266,14 @@ final class MapGame
         return null;
     }
 
-    public function getTile(int $x, int $y): ?Tile
+    public function getTile(Point $point): ?Tile
     {
-        return $this->tiles[$x][$y] ?? $this->baseLayer->get($x, $y);
+        return $this->tiles[$point->x][$point->y] ?? $this->baseLayer->get($point);
     }
 
-    public function upgradeTile(int $x, int $y, string $upgradeTo): self
+    public function upgradeTile(Point $point, string $upgradeTo): self
     {
-        $tile = $this->getTile($x, $y);
+        $tile = $this->getTile($point);
 
         if (! $tile instanceof Upgradable) {
             return $this;
@@ -329,7 +302,7 @@ final class MapGame
         }
 
         $this->pay($price);
-        $this->setTile($tile->x, $tile->y, $upgradeTile);
+        $this->setTile($tile->getPoint(), $upgradeTile);
         $this->closeMenu();
 
         return $this;
@@ -353,10 +326,11 @@ final class MapGame
         $this->fishCount -= $price->fish;
     }
 
-    public function setTile(int $x, int $y, Tile $newTile): void
+    public function setTile(Point $point, Tile $newTile): void
     {
-        $this->tiles[$x][$y] = $newTile;
-        $this->baseLayer->remove($x, $y);
+        $this->tiles[$point->x][$point->y] = $newTile;
+
+        $this->baseLayer->remove($point);
     }
 
     public function loop(): Generator
@@ -393,7 +367,7 @@ final class MapGame
 
     private function addTile(Tile $tile): void
     {
-        $this->setTile($tile->getX(), $tile->getY(), $tile);
+        $this->setTile($tile->getPoint(), $tile);
     }
 
     public function selectItem(string $itemId): self

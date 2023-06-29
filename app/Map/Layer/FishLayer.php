@@ -7,31 +7,24 @@ use App\Map\Tile\GenericTile\WaterTile;
 use App\Map\Tile\ResourceTile\FishTile;
 use App\Map\Tile\Tile;
 
-final readonly class FishLayer implements Layer
+final readonly class FishLayer
 {
     public function __construct(
         private Noise $noise,
     ) {}
 
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __invoke(WaterTile $tile, BaseLayer $base): Tile
     {
-        if (! $tile instanceof WaterTile) {
-            return $tile;
-        }
-
-        $noise = $this->noise->amount(0.02)->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.02)->generate($tile->getPoint());
 
         if ($noise <= 0.0) {
             return $tile;
         }
 
         return new FishTile(
-            x: $tile->x,
-            y: $tile->y,
-            temperature: $tile->temperature,
+            point: $tile->point,
             elevation: $tile->elevation,
             biome: $tile->biome,
-            noise: $noise,
         );
     }
 }

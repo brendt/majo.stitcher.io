@@ -4,10 +4,10 @@ namespace App\Map\Tile\SpecialTile;
 
 use App\Map\MapGame;
 use App\Map\Price;
-use App\Map\Tile\BorderStyle;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\Purchasable;
+use App\Map\Tile\Style\BorderStyle;
 
 final class FishingShackTile extends BaseTile implements Purchasable, HasBorder
 {

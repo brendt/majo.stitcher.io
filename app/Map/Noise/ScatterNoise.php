@@ -8,21 +8,23 @@ final readonly class ScatterNoise implements Noise
 {
     public function __construct(
         private int $seed,
-        private float $amunt = 1.0,
+        private float $amount = 1.0,
     ) {}
 
+    /**
+     * @param float $amount
+     * @return static
+     */
     public function amount(float $amount): self
     {
         return new self($this->seed, $amount);
     }
 
-    public function generate(int $x, int $y, int $iterations = 64): float|int
+    public function generate(Point $point, int $iterations = 64): float|int
     {
-        $point = new Point($x, $y);
-
         $hash = $this->hash($point);
 
-        $threshold = 1 - $this->amunt;
+        $threshold = 1 - $this->amount;
 
         return $hash < $threshold
             ? 0.0

@@ -11,18 +11,14 @@ use App\Map\Tile\GenericTile\LandTile;
 use App\Map\Tile\ResourceTile\WoodTile;
 use App\Map\Tile\Tile;
 
-final readonly class WoodLayer implements Layer
+final readonly class WoodLayer
 {
     public function __construct(
         private Noise $noise,
     ) {}
 
-    public function generate(Tile $tile, BaseLayer $base): Tile
+    public function __invoke(LandTile $tile): Tile
     {
-        if (! $tile instanceof LandTile) {
-            return $tile;
-        }
-
         $biome = $tile->getBiome();
 
         if ($biome instanceof ForestBiome) {
@@ -34,67 +30,58 @@ final readonly class WoodLayer implements Layer
         }
 
         if ($biome instanceof MountainBiome) {
-            return $this->mountainTile($tile);
+//            return $this->mountainTile($tile);
         }
 
         return $tile;
     }
 
-    private function forestTile(BaseTile $tile): Tile
+    private function forestTile(LandTile $tile): Tile
     {
-        $noise = $this->noise->amount(0.1)->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.1)->generate($tile->getPoint());
 
         if ($noise <= 0.0) {
             return $tile;
         }
 
         return new WoodTile(
-            x: $tile->x,
-            y: $tile->y,
-            temperature: $tile->temperature,
-            elevation: $tile->elevation,
+            point: $tile->point,
+            elevation: $tile->elevation * $noise,
             biome: $tile->biome,
-            noise: $tile->elevation * $noise,
         );
     }
 
-    private function plainsTile(Tile $tile): Tile
+    private function plainsTile(LandTile $tile): Tile
     {
-        $noise = $this->noise->amount(0.006)->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.006)->generate($tile->getPoint());
 
         if ($noise <= 0.0) {
             return $tile;
         }
 
         return new WoodTile(
-            x: $tile->x,
-            y: $tile->y,
-            temperature: $tile->temperature,
-            elevation: $tile->elevation,
+            point: $tile->point,
+            elevation: $tile->elevation * $noise,
             biome: $tile->biome,
-            noise: $tile->elevation * $noise,
         );
     }
 
-    private function mountainTile(BaseTile $tile): Tile
+    private function mountainTile(LandTile $tile): Tile
     {
-        $noise = $this->noise->amount(0.2)->generate($tile->x, $tile->y);
+        $noise = $this->noise->amount(0.2)->generate($tile->getPoint());
 
         if ($noise <= 0.0) {
             return $tile;
         }
 
-        if ($tile->elevation > 0.85) {
+        if ($tile->elevation > 0.95) {
             return $tile;
         }
 
         return new WoodTile(
-            x: $tile->x,
-            y: $tile->y,
-            temperature: $tile->temperature,
-            elevation: $tile->elevation,
+            point: $tile->point,
+            elevation: 1 - $tile->elevation * $noise,
             biome: $tile->biome,
-            noise: 1 - $tile->elevation * $noise,
         );
     }
 }

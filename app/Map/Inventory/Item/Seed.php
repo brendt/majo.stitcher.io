@@ -33,8 +33,7 @@ final class Seed implements ItemForTile
         }
 
         $woodTile = new WoodTile(
-            x: $tile->getX(),
-            y: $tile->getY(),
+            point: $tile->getPoint(),
             temperature: null,
             elevation: null,
             biome: $tile->getBiome(),
@@ -43,6 +42,6 @@ final class Seed implements ItemForTile
             timeGrowing: 0
         );
 
-        $game->setTile($tile->getX(), $tile->getY(), $woodTile);
+        $game->setTile($tile->getPoint(), $woodTile);
     }
 }

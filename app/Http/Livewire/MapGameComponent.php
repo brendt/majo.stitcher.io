@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Map\MapGame;
+use App\Map\Point;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -28,7 +29,7 @@ class MapGameComponent extends Component
     public function handleClick(int $x, int $y): void
     {
         MapGame::resolve()
-            ->handleClick($x, $y)
+            ->handleClick(new Point($x, $y))
             ->persist();
 
         $this->emit('update');
@@ -37,7 +38,7 @@ class MapGameComponent extends Component
     public function handleMetaClick(int $x, int $y): void
     {
        MapGame::resolve()
-            ->showMenu($x, $y)
+            ->showMenu(new Point($x, $y))
             ->persist();
     }
 
@@ -62,7 +63,10 @@ class MapGameComponent extends Component
     public function upgradeTile(int $x, int $y, string $upgradeTo): void
     {
         MapGame::resolve()
-            ->upgradeTile($x, $y, $upgradeTo)
+            ->upgradeTile(
+                new Point($x, $y),
+                $upgradeTo
+            )
             ->persist();
 
         $this->emit('update');

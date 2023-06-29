@@ -11,27 +11,22 @@ use App\Map\Biome\Biome;
 use App\Map\Inventory\Item\Seed;
 use App\Map\MapGame;
 use App\Map\Menu;
-use App\Map\Price;
-use App\Map\Tile\BorderStyle;
+use App\Map\Point;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
-use App\Map\Tile\HandlesTicks;
+use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
 use App\Map\Tile\HasTooltip;
-use App\Map\Tile\Tile;
+use App\Map\Tile\Style\BorderStyle;
 use App\Map\Tile\Upgradable;
-use Illuminate\Contracts\View\View;
 
-final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTicks, HasTooltip, Upgradable
+final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTick, HasTooltip, Upgradable
 {
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature,
-        public readonly ?float $elevation,
-        public readonly ?Biome $biome,
-        public readonly float $noise,
+        public readonly Point $point,
+        public readonly float $elevation,
+        public readonly Biome $biome,
         public WoodTileState $state = WoodTileState::GROWN,
         public int $timeGrowing = 0,
     ) {}
@@ -43,7 +38,7 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getColor(): string
     {
-        $value = $this->noise;
+        $value = $this->elevation;
 
         while ($value < 0.6) {
             $value += 0.1;
@@ -128,12 +123,11 @@ final class WoodTile extends BaseTile implements HasResource, HasBorder, Handles
     {
         return [
             new WoodFarmerTile(
-                x: $this->x,
-                y: $this->y,
-                temperature: $this->temperature,
+                point: $this->point,
+                temperature: $this->elevation,
                 elevation: $this->elevation,
                 biome: $this->biome,
-                noise: $this->noise,
+                noise: $this->elevation,
             ),
         ];
     }

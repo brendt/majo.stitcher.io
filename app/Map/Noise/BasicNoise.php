@@ -8,13 +8,11 @@ final class BasicNoise implements Noise
 {
     public function __construct(private int $seed) {}
 
-    public function generate(int $x, int $y, int $iterations = 64): float|int
+    public function generate(Point $point, int $iterations = 64): float|int
     {
-        $point = new Point($x, $y);
-
         $lerp = Lerp::SMOOTHSTEP;
 
-        if (($point->x) % 10 === 0 && ($point->y) % 10 === 0) {
+        if ($point->x % 10 === 0 && $point->y % 10 === 0) {
             $noise = $this->hash($point);
         }
         elseif ($point->x % 10 === 0) {
@@ -97,7 +95,7 @@ final class BasicNoise implements Noise
         $hash = bin2hex(
                 hash(
                     algo: 'xxh32',
-                    data: $this->seed * $baseX * $baseY,
+                    data: $this->seed * sin($baseX) * cos($baseY),
                 )
             );
 

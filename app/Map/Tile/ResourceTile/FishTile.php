@@ -7,25 +7,22 @@ use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
-use App\Map\Price;
-use App\Map\Tile\BorderStyle;
-use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\HandlesClick;
-use App\Map\Tile\HasBorder;
-use App\Map\Tile\HasResource;
+use App\Map\Point;
+use App\Map\Tile\ResourceTile;
 use App\Map\Tile\SpecialTile\FishingShackTile;
+use App\Map\Tile\Style\BorderStyle;
 use App\Map\Tile\Tile;
+use App\Map\Tile\Traits\BaseTileTrait;
 use App\Map\Tile\Upgradable;
 
-final class FishTile extends BaseTile implements HasResource, HasBorder, HandlesClick, Upgradable
+final class FishTile implements ResourceTile, Upgradable
 {
+    use BaseTileTrait;
+
     public function __construct(
-        public readonly int $x,
-        public readonly int $y,
-        public readonly ?float $temperature,
-        public readonly ?float $elevation,
-        public readonly ?Biome $biome,
-        public readonly float $noise,
+        public readonly Point $point,
+        public readonly float $elevation,
+        public readonly Biome $biome,
     ) {}
 
     public function getResource(): Resource
@@ -35,7 +32,7 @@ final class FishTile extends BaseTile implements HasResource, HasBorder, Handles
 
     public function getColor(): string
     {
-        $value = $this->noise;
+        $value = $this->elevation;
 
         while ($value < 0.6) {
             $value += 0.1;
@@ -72,7 +69,7 @@ final class FishTile extends BaseTile implements HasResource, HasBorder, Handles
         $fishingShackTile = $this->getFishingShackTile($game);
 
         if ($fishingShackTile) {
-            return [new FishFarmerTile($this->x, $this->y, $this->temperature, $this->elevation, $this->biome, $this->noise)];
+            return [new FishFarmerTile($this->point, $this->elevation, $this->elevation, $this->biome, $this->elevation)];
         }
 
         return [];
