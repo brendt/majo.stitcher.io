@@ -123,7 +123,6 @@ class BaseTile implements Tile
             'name' => $this::class,
             'biome' => $this->getBiome() ? $this->getBiome()::class : null,
             'elevation' => $this->elevation,
-            'temperature' => $this->temperature,
             'tooltip' => $this->getTooltip(),
         ];
     }

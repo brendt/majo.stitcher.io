@@ -13,6 +13,7 @@ use App\Map\Layer\FishLayer;
 use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
 use App\Map\Layer\IslandLayer;
+use App\Map\Layer\RiverLayer;
 use App\Map\Layer\StoneLayer;
 use App\Map\Layer\WoodLayer;
 use App\Map\Noise\BasicNoise;
@@ -89,7 +90,7 @@ final class MapGame
         $basicNoise = new BasicNoise($seed);
         $scatterNoise = new ScatterNoise($seed);
 
-        $baseLayer = (new BaseLayer(width: 100, height: 70))
+        $baseLayer = (new BaseLayer(width: 100, height: 100))
             ->add(new BiomeLayer($basicNoise))
             ->add(new WoodLayer($scatterNoise))
             ->add(new FlaxLayer($scatterNoise))

@@ -34,10 +34,8 @@ final class Seed implements ItemForTile
 
         $woodTile = new WoodTile(
             point: $tile->getPoint(),
-            temperature: null,
-            elevation: null,
+            elevation: 1.0,
             biome: $tile->getBiome(),
-            noise: 0.0,
             state: WoodTileState::GROWING,
             timeGrowing: 0
         );
