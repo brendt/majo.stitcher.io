@@ -12,17 +12,16 @@ use App\Map\Inventory\Item\Seed;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
-use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTick;
-use App\Map\Tile\HasBorder;
-use App\Map\Tile\HasResource;
-use App\Map\Tile\HasTooltip;
+use App\Map\Tile\ResourceTile;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Traits\BaseTileTrait;
 use App\Map\Tile\Upgradable;
 
-final class WoodTile extends BaseTile implements HasResource, HasBorder, HandlesClick, HandlesTick, HasTooltip, Upgradable
+final class WoodTile implements ResourceTile, HandlesTick, Upgradable
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly float $elevation,

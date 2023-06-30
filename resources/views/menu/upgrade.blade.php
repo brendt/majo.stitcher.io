@@ -14,7 +14,7 @@
             <div>
                 @if($game->canPay($canUpgradeTo->getPrice($game)))
                     <div>
-                        <button wire:click="upgradeTile({{ $tile->x }}, {{ $tile->y }}, '{{ $canUpgradeTo->getName() }}')">
+                        <button wire:click="upgradeTile({{ $tile->getPoint()->x }}, {{ $tile->getPoint()->y }}, '{{ $canUpgradeTo->getName() }}')">
                             {{ $canUpgradeTo::class }}
                             <br>
                             {{ $canUpgradeTo->getPrice($game) }}

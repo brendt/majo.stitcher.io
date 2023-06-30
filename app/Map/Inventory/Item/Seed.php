@@ -28,13 +28,17 @@ final class Seed implements ItemForTile
 
     public function useOn(Tile $tile, MapGame $game): void
     {
+        if (! $tile instanceof LandTile) {
+            return;
+        }
+
         if (! $this->canBeUsedOn($tile, $game)) {
             return;
         }
 
         $woodTile = new WoodTile(
             point: $tile->getPoint(),
-            elevation: 1.0,
+            elevation: $tile->elevation,
             biome: $tile->getBiome(),
             state: WoodTileState::GROWING,
             timeGrowing: 0
