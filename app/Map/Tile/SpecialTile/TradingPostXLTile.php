@@ -7,7 +7,6 @@ use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\MapGame;
 use App\Map\Menu;
-use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasMenu;

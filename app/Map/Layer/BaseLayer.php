@@ -3,7 +3,6 @@
 namespace App\Map\Layer;
 
 use App\Map\Point;
-use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\GenericTile\GenericTile;
 use App\Map\Tile\Tile;
 use Generator;

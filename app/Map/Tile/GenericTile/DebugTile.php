@@ -53,4 +53,9 @@ final readonly class DebugTile implements Tile
     {
         return $this->point;
     }
+
+    public function getElevation(): float
+    {
+        return $this->noise;
+    }
 }

@@ -5,19 +5,13 @@ namespace App\Http\Controllers;
 
 use App\Map\Layer\BaseLayer;
 use App\Map\Layer\BiomeLayer;
-use App\Map\Layer\DebugLayer;
-use App\Map\Layer\ElevationLayer;
 use App\Map\Layer\FishLayer;
 use App\Map\Layer\FlaxLayer;
 use App\Map\Layer\GoldLayer;
-use App\Map\Layer\IslandLayer;
 use App\Map\Layer\StoneLayer;
-use App\Map\Layer\ValleyLayer;
 use App\Map\Layer\WoodLayer;
 use App\Map\Noise\BasicNoise;
 use App\Map\Noise\ScatterNoise;
-use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\Tile;
 
 final class MapCanvasController
 {
@@ -38,9 +32,7 @@ final class MapCanvasController
 
 
         $baseLayer = (new BaseLayer($width, $height))
-            ->add(new ElevationLayer($basicNoise))
-            ->add(new IslandLayer())
-            ->add(new BiomeLayer())
+            ->add(new BiomeLayer($basicNoise))
             ->add(new WoodLayer($scatterNoise))
             ->add(new FlaxLayer($scatterNoise))
             ->add(new StoneLayer($scatterNoise))
