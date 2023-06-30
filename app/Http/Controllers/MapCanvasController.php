@@ -19,9 +19,9 @@ final class MapCanvasController
     {
         $seed = request()->get('seed', random_int(1, 1_000_000));
 
-        $width = 150;
-        $height = 100;
-        $pixelSize = 10;
+        $width = 200;
+        $height = 120;
+        $pixelSize = 7;
 
         $basicNoise = new BasicNoise($seed);
         $scatterNoise = new ScatterNoise($seed);
