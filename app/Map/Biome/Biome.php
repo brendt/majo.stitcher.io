@@ -2,9 +2,9 @@
 
 namespace App\Map\Biome;
 
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\Tile;
 
 interface Biome
 {
-    public function getTileColor(BaseTile $tile): string;
+    public function getTileColor(Tile $tile): string;
 }

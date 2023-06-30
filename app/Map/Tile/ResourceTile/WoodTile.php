@@ -12,6 +12,7 @@ use App\Map\Inventory\Item\Seed;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
+use App\Map\Tile\FarmerTile\WoodFarmerTile;
 use App\Map\Tile\HandlesTick;
 use App\Map\Tile\ResourceTile;
 use App\Map\Tile\Style\BorderStyle;
@@ -33,19 +34,6 @@ final class WoodTile implements ResourceTile, HandlesTick, Upgradable
     public function getResource(): Resource
     {
         return Resource::Wood;
-    }
-
-    public function getColor(): string
-    {
-        $value = $this->elevation;
-
-        while ($value < 0.6) {
-            $value += 0.1;
-        }
-
-        $hex = hex($value);
-
-        return "#00{$hex}00";
     }
 
     public function getBorderStyle(): BorderStyle

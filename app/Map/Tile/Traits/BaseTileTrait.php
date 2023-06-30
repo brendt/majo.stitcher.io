@@ -27,6 +27,11 @@ trait BaseTileTrait
         return $this->biome;
     }
 
+    public function getElevation(): float
+    {
+        return $this->elevation;
+    }
+
     public function toArray(MapGame $game): array
     {
         return [
@@ -86,7 +91,7 @@ trait BaseTileTrait
 
     public function getStyle(MapGame $game): Style
     {
-        $backgroundColor = $this->getColor();
+        $backgroundColor = $this->getBiome()->getTileColor($this);
         $borderStyle = $this instanceof HasBorder ? $this->getBorderStyle() : null;
         $borderWidth = $borderStyle->width ?? 0;
         $borderColor = $borderStyle->color ?? '';

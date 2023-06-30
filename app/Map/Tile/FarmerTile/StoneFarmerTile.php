@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\FarmerTile;
 
 use App\Map\Actions\Action;
 use App\Map\Actions\UpdateResourceCount;
@@ -8,15 +8,21 @@ use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
+use App\Map\Price;
+use App\Map\Tile\FarmerTile;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Traits\BaseTileTrait;
 
-final class StoneFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTick, HandlesClick
+final class StoneFarmerTile implements FarmerTile
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly ?float $temperature,
@@ -24,19 +30,6 @@ final class StoneFarmerTile extends BaseTile implements HasResource, HasBorder, 
         public readonly ?Biome $biome,
         public readonly float $noise,
     ) {}
-
-    public function getColor(): string
-    {
-        $value = $this->noise;
-
-        while ($value > 0.8) {
-            $value -= 0.3;
-        }
-
-        $hex = hex($value);
-
-        return "#{$hex}{$hex}{$hex}";
-    }
 
     public function getBorderStyle(): BorderStyle
     {
@@ -58,14 +51,20 @@ final class StoneFarmerTile extends BaseTile implements HasResource, HasBorder, 
         return new UpdateResourceCount(stoneCount: 1);
     }
 
-    public function getMenu(): Menu
+    public function getResourcePerTick(MapGame $game, Resource $resource): int
     {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'menu.upgrade',
-            viewData: [
-                'tile' => $this,
-            ],
+        return 0;
+    }
+
+    public function getName(): string
+    {
+        return 'StoneFarmerTile';
+    }
+
+    public function getPrice(MapGame $game): Price
+    {
+        return new Price(
+            wood: 1,
         );
     }
 }

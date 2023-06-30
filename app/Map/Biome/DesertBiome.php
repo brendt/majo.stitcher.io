@@ -2,14 +2,14 @@
 
 namespace App\Map\Biome;
 
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\Tile;
 
 final class DesertBiome implements Biome
 {
-    public function getTileColor(BaseTile $tile): string
+    public function getTileColor(Tile $tile): string
     {
-        $r = hex($tile->elevation / 1.5);
-        $g = hex($tile->elevation);
+        $r = hex($tile->getElevation() / 1.5);
+        $g = hex($tile->getElevation());
 
         return "#{$r}{$g}00";
     }

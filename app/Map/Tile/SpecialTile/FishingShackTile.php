@@ -8,13 +8,12 @@ use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\Purchasable;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Traits\BaseTileTrait;
 
-final class FishingShackTile extends BaseTile implements Purchasable, HasBorder
+final class FishingShackTile implements Tile, Purchasable, HasBorder
 {
-    public function getColor(): string
-    {
-        return 'olive';
-    }
+    use BaseTileTrait;
 
     public function getBorderStyle(): BorderStyle
     {

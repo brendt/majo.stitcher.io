@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\FarmerTile;
 
 use App\Map\Actions\Action;
 use App\Map\Actions\AddInventoryItem;
@@ -13,16 +13,23 @@ use App\Map\MapGame;
 use App\Map\Point;
 use App\Map\Price;
 use App\Map\Tile\CalculatesResourcePerTick;
+use App\Map\Tile\FarmerTile;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
 use App\Map\Tile\Purchasable;
+use App\Map\Tile\ResourceTile\Resource;
+use App\Map\Tile\ResourceTile\WoodTile;
+use App\Map\Tile\ResourceTile\WoodTileState;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Traits\BaseTileTrait;
 
-final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTick, HandlesClick, Purchasable, CalculatesResourcePerTick
+final class WoodFarmerTile implements FarmerTile
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly ?float $temperature,
@@ -64,11 +71,6 @@ final class WoodFarmerTile extends BaseTile implements HasResource, HasBorder, H
         }
 
         return new DoNothing();
-    }
-
-    public function getColor(): string
-    {
-        return "#00FF00";
     }
 
     public function getResource(): Resource

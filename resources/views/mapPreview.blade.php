@@ -161,7 +161,7 @@
             <div class="tile"
                  style="
                         grid-area: {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }} / {{ $tile->getPoint()->y }} / {{ $tile->getPoint()->x }};
-                        --tile-color: {{ $tile->getColor() }};
+                        --tile-color: {{ $tile->getBiome()->getTileColor($tile) }};
                     "
             >
                 @if($tile instanceof \App\Map\Tile\HasTooltip)

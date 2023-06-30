@@ -53,7 +53,7 @@ final class MapCanvasController
 
         foreach ($baseLayer->getBoard() as $x => $row) {
             foreach ($row as $y => $tile) {
-                $json[$x][$y] = $tile->getColor();
+                $json[$x][$y] = $tile->getBiome()->getTileColor($tile);
             }
         }
 

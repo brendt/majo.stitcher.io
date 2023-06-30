@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\FarmerTile;
 
 use App\Map\Actions\Action;
 use App\Map\Actions\UpdateResourceCount;
@@ -8,15 +8,21 @@ use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
+use App\Map\Price;
+use App\Map\Tile\FarmerTile;
 use App\Map\Tile\GenericTile\BaseTile;
 use App\Map\Tile\HandlesClick;
 use App\Map\Tile\HandlesTick;
 use App\Map\Tile\HasBorder;
 use App\Map\Tile\HasResource;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Traits\BaseTileTrait;
 
-final class FlaxFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTick, HandlesClick
+final class FlaxFarmerTile implements FarmerTile
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly ?float $temperature,
@@ -28,21 +34,6 @@ final class FlaxFarmerTile extends BaseTile implements HasResource, HasBorder, H
     public function getResource(): Resource
     {
         return Resource::Flax;
-    }
-
-    public function getColor(): string
-    {
-        $value = $this->noise;
-
-        while ($value < 0.6) {
-            $value += 0.1;
-        }
-
-        $r = hex($value / 2);
-        $g = hex($value);
-        $b = hex($value / 2);
-
-        return "#{$r}{$g}{$b}";
     }
 
     public function getBorderStyle(): BorderStyle
@@ -60,14 +51,20 @@ final class FlaxFarmerTile extends BaseTile implements HasResource, HasBorder, H
         return new UpdateResourceCount(flaxCount: 1);
     }
 
-    public function getMenu(): Menu
+    public function getResourcePerTick(MapGame $game, Resource $resource): int
     {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'menu.upgrade',
-            viewData: [
-                'tile' => $this,
-            ],
+        return 0;
+    }
+
+    public function getName(): string
+    {
+        return 'StoneFarmerTile';
+    }
+
+    public function getPrice(MapGame $game): Price
+    {
+        return new Price(
+            wood: 1,
         );
     }
 }

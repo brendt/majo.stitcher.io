@@ -2,13 +2,13 @@
 
 namespace App\Map\Biome;
 
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\Tile;
 
 final class SeaBiome implements Biome
 {
-    public function getTileColor(BaseTile $tile): string
+    public function getTileColor(Tile $tile): string
     {
-        $elevation = $tile->elevation;
+        $elevation = $tile->getElevation();
 
         while ($elevation < 0.25) {
             $elevation += 0.01;

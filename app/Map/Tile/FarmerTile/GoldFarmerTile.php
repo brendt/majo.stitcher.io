@@ -1,46 +1,31 @@
 <?php
 
-namespace App\Map\Tile\ResourceTile;
+namespace App\Map\Tile\FarmerTile;
 
 use App\Map\Actions\Action;
 use App\Map\Actions\DoNothing;
 use App\Map\Actions\UpdateResourceCount;
 use App\Map\Biome\Biome;
 use App\Map\MapGame;
-use App\Map\Menu;
 use App\Map\Point;
 use App\Map\Price;
-use App\Map\Tile\CalculatesResourcePerTick;
-use App\Map\Tile\GenericTile\BaseTile;
-use App\Map\Tile\HandlesClick;
-use App\Map\Tile\HandlesTick;
-use App\Map\Tile\HasBorder;
-use App\Map\Tile\HasResource;
-use App\Map\Tile\Purchasable;
+use App\Map\Tile\FarmerTile;
+use App\Map\Tile\ResourceTile\GoldTile;
+use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\Style\BorderStyle;
 use App\Map\Tile\Tile;
+use App\Map\Tile\Traits\BaseTileTrait;
 use Exception;
 
-final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, HandlesTick, HandlesClick, Purchasable, CalculatesResourcePerTick
+final class GoldFarmerTile implements FarmerTile
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly float $elevation,
         public readonly Biome $biome,
     ) {}
-
-    public function getColor(): string
-    {
-        $value = $this->noise;
-
-        while ($value > 0.8) {
-            $value -= 0.3;
-        }
-
-        $hex = hex($value);
-
-        return "#{$hex}{$hex}{$hex}";
-    }
 
     public function getBorderStyle(): BorderStyle
     {
@@ -68,17 +53,6 @@ final class GoldFarmerTile extends BaseTile implements HasResource, HasBorder, H
     public function handleClick(MapGame $game): Action
     {
         return new UpdateResourceCount(goldCount: 1);
-    }
-
-    public function getMenu(): Menu
-    {
-        return new Menu(
-            hasMenu: $this,
-            viewPath: 'menu.upgrade',
-            viewData: [
-                'tile' => $this,
-            ],
-        );
     }
 
     public function getName(): string

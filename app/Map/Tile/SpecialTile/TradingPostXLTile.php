@@ -14,21 +14,16 @@ use App\Map\Tile\HasMenu;
 use App\Map\Tile\ResourceTile\Resource;
 use App\Map\Tile\SavesMenu;
 use App\Map\Tile\Style\BorderStyle;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Traits\BaseTileTrait;
 
-final class TradingPostXLTile extends BaseTile implements HasMenu, SavesMenu, HandlesTick, HasBorder
+final class TradingPostXLTile implements Tile, HasMenu, SavesMenu, HandlesTick, HasBorder
 {
+    use BaseTileTrait;
+
     public ?Resource $input = null;
 
     public ?Resource $output = null;
-
-    public function getColor(): string
-    {
-        if ($this->output) {
-            return $this->output->getBaseColor();
-        }
-
-        return 'white';
-    }
 
     public function getBorderStyle(): BorderStyle
     {

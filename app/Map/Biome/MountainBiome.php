@@ -2,16 +2,16 @@
 
 namespace App\Map\Biome;
 
-use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\Tile;
 
 final class MountainBiome implements Biome
 {
-    public function getTileColor(BaseTile $tile): string
+    public function getTileColor(Tile $tile): string
     {
-        if ($tile->elevation >= 0.95) {
-            $r = hex($tile->elevation ** 4);
+        if ($tile->getElevation() >= 0.95) {
+            $r = hex($tile->getElevation() ** 4);
         } else {
-            $r = hex($tile->elevation / 2);
+            $r = hex($tile->getElevation() / 2);
         }
 
         return "#{$r}{$r}{$r}";

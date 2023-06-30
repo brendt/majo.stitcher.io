@@ -17,26 +17,6 @@ final readonly class DebugTile implements Tile
         public array $debug = [],
     ) {}
 
-    public function getColor(): string
-    {
-        $hex = dechex($this->noise * 255);
-
-        if (strlen($hex) < 2) {
-            $hex = "0" . $hex;
-        }
-
-        return "#{$hex}{$hex}{$hex}";
-
-//        $hexFromNoise = hex($this->noise);
-//
-//        $color = match(true) {
-//            $this->noise < 0.6 => "#0000{$hexFromNoise}",
-//            default => "#00{$hexFromNoise}00",
-//        };
-//
-//        return $color;
-    }
-
     public function getBiome(): Biome
     {
         return new PlainsBiome();

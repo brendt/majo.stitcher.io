@@ -8,6 +8,7 @@ use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
+use App\Map\Tile\FarmerTile\FishFarmerTile;
 use App\Map\Tile\ResourceTile;
 use App\Map\Tile\SpecialTile\FishingShackTile;
 use App\Map\Tile\Style\BorderStyle;
@@ -28,19 +29,6 @@ final class FishTile implements ResourceTile, Upgradable
     public function getResource(): Resource
     {
         return Resource::Fish;
-    }
-
-    public function getColor(): string
-    {
-        $value = $this->elevation;
-
-        while ($value < 0.6) {
-            $value += 0.1;
-        }
-
-        $hex = hex($value);
-
-        return "#0000{$hex}";
     }
 
     public function getBorderStyle(): BorderStyle

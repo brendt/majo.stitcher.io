@@ -4,6 +4,7 @@ namespace App\Map\Layer;
 
 use App\Map\Point;
 use App\Map\Tile\GenericTile\BaseTile;
+use App\Map\Tile\GenericTile\GenericTile;
 use App\Map\Tile\Tile;
 use Generator;
 use TypeError;
@@ -27,7 +28,7 @@ final class BaseLayer
             for ($y = 0; $y < $this->height; $y++) {
                 $point = new Point($x, $y);
 
-                $tile = $this->get($point) ?? new BaseTile($point);
+                $tile = $this->get($point) ?? new GenericTile($point);
 
                 foreach ($this->pendingLayers as $layer) {
                     try {

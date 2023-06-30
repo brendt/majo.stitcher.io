@@ -7,25 +7,24 @@ use App\Map\Biome\Biome;
 use App\Map\MapGame;
 use App\Map\Menu;
 use App\Map\Point;
+use App\Map\Tile\FarmerTile\GoldFarmerTile;
 use App\Map\Tile\HasTooltip;
-use App\Map\Tile\ResourceTile\GoldFarmerTile;
 use App\Map\Tile\ResourceTile\GoldTile;
 use App\Map\Tile\SpecialTile\FishingShackTile;
 use App\Map\Tile\SpecialTile\TradingPostTile;
+use App\Map\Tile\Tile;
+use App\Map\Tile\Traits\BaseTileTrait;
 use App\Map\Tile\Upgradable;
 
-final class LandTile extends BaseTile implements HasTooltip, Upgradable
+final class LandTile implements Tile, Upgradable
 {
+    use BaseTileTrait;
+
     public function __construct(
         public readonly Point $point,
         public readonly float $elevation,
         public readonly Biome $biome,
     ) {}
-
-    public function getColor(): string
-    {
-        return $this->getBiome()->getTileColor($this);
-    }
 
     public function getMenu(): Menu
     {
